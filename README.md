@@ -1,4 +1,4 @@
-## caddy-rate-limit [![build]()]()
+## caddy-rate-limit ![Travis CI](https://img.shields.io/travis/xuqingfeng/caddy-rate-limit/master.svg?style=flat-square)
 >a `rate limit` plugin for [caddy](https://caddyserver.com/)
 
 ### Syntax
@@ -35,7 +35,7 @@ ratelimit rate burst {
 `ratelimit /r 2 1`
 
 ```
-ratelimit 2 0 {
+ratelimit 2 2 {
     /r1
     /r2
 }
