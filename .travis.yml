@@ -1,0 +1,11 @@
+language: go
+go:
+  - 1.6
+  - tip
+os:
+  - linux
+  - osx
+install:
+  - go get -v ./...
+script:
+  - make test
