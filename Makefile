@@ -1,3 +1,6 @@
+deps:
+	go get -v ./...
+
 build: format
 	go build
 

@@ -1,4 +1,4 @@
-## caddy-rate-limit ![Travis CI](https://img.shields.io/travis/xuqingfeng/caddy-rate-limit/master.svg?style=flat-square)
+## caddy-rate-limit [![Travis CI](https://img.shields.io/travis/xuqingfeng/caddy-rate-limit/master.svg?style=flat-square)](https://travis-ci.org/xuqingfeng/caddy-rate-limit)
 >a `rate limit` plugin for [caddy](https://caddyserver.com/)
 
 ### Syntax
@@ -13,7 +13,7 @@ ratelimit path rate burst
 
 - rate is the limited request in second (r/s) (eg. 1)
 
-- burst is the burst size requester can exceed (eg. 1)
+- burst is the burst size requester can exceed **[burst >= rate]** (eg. 2)
 
 
 For multiple resources:
@@ -26,13 +26,13 @@ ratelimit rate burst {
 
 - rate is the rate in second (r/s) (eg. 1)
 
-- burst is the burst size requester can exceed (eg. 1)
+- burst is the burst size requester can exceed **[burst >= rate]** (eg. 1)
 
 - resources is a list of files/directories to apply `rate limit`, one per line
 
 ### Examples
 
-`ratelimit /r 2 1`
+`ratelimit /r 2 3`
 
 ```
 ratelimit 2 2 {
@@ -46,8 +46,3 @@ ratelimit 2 2 {
 [http://nginx.org/en/docs/http/ngx_http_limit_req_module.html](http://nginx.org/en/docs/http/ngx_http_limit_req_module.html)
 
 [https://github.com/didip/tollbooth](https://github.com/didip/tollbooth)
-
-
-###### todo
-
-- [ ] fix burst

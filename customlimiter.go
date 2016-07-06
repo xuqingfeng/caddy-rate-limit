@@ -21,12 +21,7 @@ func NewCustomLimiter() *CustomLimiter {
 
 func (c *CustomLimiter) Allow(keys []string, rule Rule) bool {
 
-	keysJoined := strings.Join(keys, "|")
-	if _, found := c.Keys[keysJoined]; !found {
-		c.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate), rule.Burst)
-	}
-
-	return c.Keys[keysJoined].Allow()
+	return c.AllowN(keys, rule, 1)
 }
 
 func (c *CustomLimiter) AllowN(keys []string, rule Rule, n int) bool {
