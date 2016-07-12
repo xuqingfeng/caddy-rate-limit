@@ -3,10 +3,10 @@ package ratelimit
 import (
 	"log"
 	"os"
+    "strconv"
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"strconv"
 )
 
 // todo: rm

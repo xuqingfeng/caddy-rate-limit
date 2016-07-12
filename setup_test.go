@@ -2,10 +2,10 @@ package ratelimit
 
 import (
 	"testing"
+    "reflect"
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"reflect"
 )
 
 func TestSetup(t *testing.T) {

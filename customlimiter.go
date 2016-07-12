@@ -2,10 +2,10 @@ package ratelimit
 
 import (
 	"strings"
-
-	"golang.org/x/time/rate"
 	"net/http"
 	"time"
+
+    "golang.org/x/time/rate"
 )
 
 type CustomLimiter struct {
