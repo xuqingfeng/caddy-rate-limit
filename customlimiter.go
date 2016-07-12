@@ -1,11 +1,11 @@
 package ratelimit
 
 import (
-	"strings"
 	"net/http"
+	"strings"
 	"time"
 
-    "golang.org/x/time/rate"
+	"golang.org/x/time/rate"
 )
 
 type CustomLimiter struct {
@@ -39,7 +39,7 @@ func buildKeys(res string, r *http.Request) [][]string {
 	remoteIP := GetRemoteIP(r)
 	sliceKeys := make([][]string, 0)
 
-	if "" == remoteIP {
+	if len(remoteIP) == 0 {
 		return sliceKeys
 	} else {
 		sliceKeys = append(sliceKeys, []string{remoteIP, res})

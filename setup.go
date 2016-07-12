@@ -1,20 +1,14 @@
 package ratelimit
 
 import (
-	"log"
-	"os"
-    "strconv"
+	"strconv"
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
 
-// todo: rm
-var logger *log.Logger
-
 func init() {
 
-	logger = log.New(os.Stderr, "ratelimit: ", log.LstdFlags)
 	caddy.RegisterPlugin("ratelimit", caddy.Plugin{
 		ServerType: "http",
 		Action:     setup,
@@ -78,6 +72,5 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 		rules = append(rules, rule)
 	}
 
-	// ? no return; error
 	return rules, nil
 }

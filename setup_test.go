@@ -1,8 +1,8 @@
 package ratelimit
 
 import (
+	"reflect"
 	"testing"
-    "reflect"
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
