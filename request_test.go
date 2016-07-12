@@ -20,16 +20,16 @@ func TestGetRemoteIP(t *testing.T) {
 		},
 		{
 			map[string]string{
-				"Real-Ip": "192.168.1.1",
+				"X-Real-Ip": "192.168.1.1",
 			},
 			"192.168.1.1",
 		},
 		{
 			map[string]string{
 				"X-Forwarded-For": "192.168.1.2,192.168.1.1",
-				"Real-Ip":         "192.168.1.2",
+				"X-Real-Ip":       "192.168.1.2",
 			},
-			"192.169.1.2",
+			"192.168.1.2",
 		},
 		{
 			map[string]string{
