@@ -1,5 +1,7 @@
-## caddy-rate-limit [![Travis CI](https://img.shields.io/travis/xuqingfeng/caddy-rate-limit/master.svg?style=flat-square)](https://travis-ci.org/xuqingfeng/caddy-rate-limit)
+## caddy-rate-limit
 >a `rate limit` plugin for [caddy](https://caddyserver.com/)
+
+[![Travis CI](https://img.shields.io/travis/xuqingfeng/caddy-rate-limit/master.svg?style=flat-square)](https://travis-ci.org/xuqingfeng/caddy-rate-limit)
 
 ### Syntax
 
@@ -13,7 +15,7 @@ ratelimit path rate burst
 
 - rate is the limited request in second (r/s) (eg. 1)
 
-- burst is the burst size requester can exceed **[burst >= rate]** (eg. 2)
+- burst is the maximum burst size requester can exceed **[burst >= rate]** (eg. 2)
 
 
 For multiple resources:
@@ -23,10 +25,6 @@ ratelimit rate burst {
     resources
 }
 ```
-
-- rate is the rate in second (r/s) (eg. 1)
-
-- burst is the burst size requester can exceed **[burst >= rate]** (eg. 1)
 
 - resources is a list of files/directories to apply `rate limit`, one per line
 
