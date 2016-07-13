@@ -17,6 +17,7 @@ ratelimit path rate burst
 
 - burst is the maximum burst size requester can exceed **[burst >= rate]** (eg. 2)
 
+Excessive requests will be terminated with an error 429 (Too Many Requests)!
 
 For multiple resources:
 
@@ -27,6 +28,7 @@ ratelimit rate burst {
 ```
 
 - resources is a list of files/directories to apply `rate limit`, one per line
+
 
 ### Examples
 

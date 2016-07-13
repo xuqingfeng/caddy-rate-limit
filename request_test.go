@@ -61,6 +61,7 @@ func TestGetRemoteIP(t *testing.T) {
 		if err != nil {
 			t.Errorf("Test %d errored: '%v'", i, err)
 		}
+		// fixme: bytes.NewBuffer()
 		ip, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			t.Errorf("Test %d errored: '%v'", i, err)
