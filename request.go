@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// GetRemoteIP returns the ip of requester
+// priority: X-Forwarded-For > X-Real-Ip > RemoteAddress
 func GetRemoteIP(r *http.Request) string {
 
 	remoteAddress := r.RemoteAddr

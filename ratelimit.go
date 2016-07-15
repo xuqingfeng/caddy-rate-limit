@@ -6,11 +6,13 @@ import (
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
 
+// RateLimit is an http.Handler that can limit request rate to specific paths or files
 type RateLimit struct {
 	Next  httpserver.Handler
 	Rules []Rule
 }
 
+// Rule is a configuration for ratelimit
 type Rule struct {
 	Rate      float64
 	Burst     int
