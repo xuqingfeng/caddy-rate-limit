@@ -13,31 +13,6 @@ func TestGetRemoteIP(t *testing.T) {
 		expected string
 	}{
 		{
-			map[string]string{
-				"X-Forwarded-For": "192.168.1.1, 192.168.1.2",
-			},
-			"192.168.1.1",
-		},
-		{
-			map[string]string{
-				"X-Real-Ip": "192.168.1.1",
-			},
-			"192.168.1.1",
-		},
-		{
-			map[string]string{
-				"X-Forwarded-For": "192.168.1.2,192.168.1.1",
-				"X-Real-Ip":       "192.168.1.2",
-			},
-			"192.168.1.2",
-		},
-		{
-			map[string]string{
-				"X-Forwarded-For": "",
-			},
-			"127.0.0.1",
-		},
-		{
 			make(map[string]string),
 			"127.0.0.1",
 		},
@@ -61,7 +36,7 @@ func TestGetRemoteIP(t *testing.T) {
 		if err != nil {
 			t.Errorf("Test %d errored: '%v'", i, err)
 		}
-		// fixme: bytes.NewBuffer()
+		// FIXME: 16/7/21 bytes.NewBuffer
 		ip, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			t.Errorf("Test %d errored: '%v'", i, err)
