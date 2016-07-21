@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
+	"net"
 )
 
 // RateLimit is an http.Handler that can limit request rate to specific paths or files
@@ -21,11 +22,21 @@ type Rule struct {
 
 var (
 	customLimiter *CustomLimiter
+	localIpNets   []*net.IPNet
 )
 
 func init() {
 
 	customLimiter = NewCustomLimiter()
+	localCIDRs := []string{
+		"127.0.0.1/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+	}
+	for _, s := range localCIDRs {
+		_, ipNet, err := net.ParseCIDR(s)
+		if err == nil {
+			localIpNets = append(localIpNets, ipNet)
+		}
+	}
 }
 
 func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
@@ -33,6 +44,11 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
 			if !httpserver.Path(r.URL.Path).Matches(res) {
+				continue
+			}
+
+			// filter local ip address
+			if IsLocalIpAddress(r.RemoteAddr, localIpNets) {
 				continue
 			}
 

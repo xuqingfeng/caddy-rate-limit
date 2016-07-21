@@ -6,6 +6,41 @@ import (
 	"testing"
 )
 
+func TestIsLocalIpAddress(t *testing.T) {
+
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{
+			"127.0.0.10",
+			true,
+		},
+		{
+			"10.1.2.3",
+			true,
+		},
+		{
+			"172.16.0.10",
+			true,
+		},
+		{
+			"192.168.100.10",
+			true,
+		},
+		{
+			"100.100.100.100",
+			false,
+		},
+	}
+
+	for i, test := range tests {
+		if ret := IsLocalIpAddress(test.input, localIpNets); ret != test.expected {
+			t.Errorf("Test %d Expected %t, get %t", i, test.expected, ret)
+		}
+	}
+}
+
 func TestGetRemoteIP(t *testing.T) {
 
 	tests := []struct {
