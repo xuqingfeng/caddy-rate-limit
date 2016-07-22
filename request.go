@@ -6,7 +6,6 @@ import (
 	"strings"
 )
 
-// TODO: 16/7/21 get proxy ip
 // IsLocalIpAddress check whether a ip belongs to private network
 func IsLocalIpAddress(address string, localIpNets []*net.IPNet) bool {
 
@@ -21,7 +20,7 @@ func IsLocalIpAddress(address string, localIpNets []*net.IPNet) bool {
 		}
 	}
 
-	return true
+	return false
 }
 
 // GetRemoteIP returns the ip of requester
