@@ -14,8 +14,6 @@ func IsLocalIpAddress(address string, localIpNets []*net.IPNet) bool {
 		for _, ipNet := range localIpNets {
 			if ipNet.Contains(ip) {
 				return true
-			} else {
-				return false
 			}
 		}
 	}
