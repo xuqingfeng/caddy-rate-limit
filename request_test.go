@@ -32,6 +32,18 @@ func TestIsLocalIpAddress(t *testing.T) {
 			"100.100.100.100",
 			false,
 		},
+		{
+			"::1",
+			true,
+		},
+		{
+			"fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+			true,
+		},
+		{
+			"fe80::",
+			false,
+		},
 	}
 
 	for i, test := range tests {
