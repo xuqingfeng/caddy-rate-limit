@@ -6,6 +6,8 @@
 
 ### Syntax
 
+**Excessive requests will be terminated with an error 429 (Too Many Requests) !**
+
 For single resource:
 
 ```
@@ -16,9 +18,7 @@ ratelimit path rate burst
 
 - rate is the limited request in second (r/s) (eg. 1)
 
-- burst is the maximum burst size requester can exceed **[burst >= rate]** (eg. 2)
-
-**Excessive requests will be terminated with an error 429 (Too Many Requests) !**
+- burst is the maximum burst size client can exceed; burst >= rate (eg. 2)
 
 For multiple resources:
 
@@ -33,12 +33,18 @@ ratelimit rate burst {
 
 ### Examples
 
-`ratelimit /r 2 3`
+Limit clients to 2 requests per second (bursts of 3) to any resources in /r:
+
+```
+ratelimit /r 2 3
+```
+
+For the listed paths, limit clients to 2 requests per second (bursts of 2):
 
 ```
 ratelimit 2 2 {
-    /r1
-    /r2
+    /foo.html
+    /dir
 }
 ```
 
