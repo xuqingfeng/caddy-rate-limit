@@ -34,8 +34,8 @@ func TestRateLimitParse(t *testing.T) {
 			},
 		},
 		{
-			`ratelimit / 2 1 second`, false, []Rule{
-				{2, 1, []string{"/"}, "second"},
+			`ratelimit / 2 1 minute`, false, []Rule{
+				{2, 1, []string{"/"}, "minute"},
 			},
 		},
 		{
@@ -75,6 +75,9 @@ func TestRateLimitParse(t *testing.T) {
 			}
 			if actualRule.Burst != expectedRule.Burst {
 				t.Errorf("Test %d, rule %d: Expected burst '%d', got '%d'", i, j, expectedRule.Burst, actualRule.Burst)
+			}
+			if actualRule.Unit != expectedRule.Unit {
+				t.Errorf("Test %d, rule %d: Expected unit '%s', got '%s'", i, j, expectedRule.Unit, actualRule.Unit)
 			}
 			if !reflect.DeepEqual(actualRule.Resources, expectedRule.Resources) {
 				t.Errorf("Test %d, rule %d: Expected resource '%v', got '%v'", i, j, expectedRule.Resources, actualRule.Resources)
