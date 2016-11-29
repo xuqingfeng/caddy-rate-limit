@@ -28,7 +28,7 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 
 	keysJoined := strings.Join(keys, "|")
 	if _, found := cl.Keys[keysJoined]; !found {
-		cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate), rule.Burst)
+		cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate), rule.Burst, rule.Unit)
 	}
 
 	return cl.Keys[keysJoined].AllowN(time.Now(), n)

@@ -28,7 +28,7 @@ func TestAllow(t *testing.T) {
 		},
 	}
 
-    // TODO: 16/11/25 sleep
+	// TODO: 16/11/25 sleep
 	for i, test := range tests {
 		test.keys = append(test.keys, strconv.Itoa(i))
 		t.Logf("keys: %v", test.keys)

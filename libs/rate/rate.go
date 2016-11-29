@@ -56,6 +56,7 @@ func Every(interval time.Duration) Limit {
 type Limiter struct {
 	limit Limit
 	burst int
+	unit  string
 
 	mu     sync.Mutex
 	tokens float64
@@ -63,7 +64,6 @@ type Limiter struct {
 	last time.Time
 	// lastEvent is the latest time of a rate-limited event (past or future)
 	lastEvent time.Time
-	unit      string
 }
 
 // Limit returns the maximum overall event rate.
@@ -83,10 +83,11 @@ func (lim *Limiter) Burst() int {
 
 // NewLimiter returns a new Limiter that allows events up to rate r and permits
 // bursts of at most b tokens.
-func NewLimiter(r Limit, b int) *Limiter {
+func NewLimiter(r Limit, b int, u string) *Limiter {
 	return &Limiter{
 		limit: r,
 		burst: b,
+		unit:  u,
 	}
 }
 
@@ -167,7 +168,7 @@ func (r *Reservation) CancelAt(now time.Time) {
 	// calculate tokens to restore
 	// The duration between lim.lastEvent and r.timeToAct tells us how many tokens were reserved
 	// after r was obtained. These tokens should not be restored.
-	restoreTokens := float64(r.tokens) - r.limit.tokensFromDuration(r.lim.lastEvent.Sub(r.timeToAct))
+	restoreTokens := float64(r.tokens) - r.limit.tokensFromDuration(r.lim.lastEvent.Sub(r.timeToAct), r.lim.unit)
 	if restoreTokens <= 0 {
 		return
 	}
@@ -182,7 +183,7 @@ func (r *Reservation) CancelAt(now time.Time) {
 	r.lim.last = now
 	r.lim.tokens = tokens
 	if r.timeToAct == r.lim.lastEvent {
-		prevEvent := r.timeToAct.Add(r.limit.durationFromTokens(float64(-r.tokens)))
+		prevEvent := r.timeToAct.Add(r.limit.durationFromTokens(float64(-r.tokens), r.lim.unit))
 		if !prevEvent.Before(now) {
 			r.lim.lastEvent = prevEvent
 		}
@@ -301,7 +302,7 @@ func (lim *Limiter) reserveN(now time.Time, n int, maxFutureReserve time.Duratio
 	// Calculate the wait duration
 	var waitDuration time.Duration
 	if tokens < 0 {
-		waitDuration = lim.limit.durationFromTokens(-tokens)
+		waitDuration = lim.limit.durationFromTokens(-tokens, lim.unit)
 	}
 
 	// Decide result
@@ -339,14 +340,14 @@ func (lim *Limiter) advance(now time.Time) (newNow time.Time, newLast time.Time,
 	}
 
 	// Avoid making delta overflow below when last is very old.
-	maxElapsed := lim.limit.durationFromTokens(float64(lim.burst) - lim.tokens)
+	maxElapsed := lim.limit.durationFromTokens(float64(lim.burst)-lim.tokens, lim.unit)
 	elapsed := now.Sub(last)
 	if elapsed > maxElapsed {
 		elapsed = maxElapsed
 	}
 
 	// Calculate the new number of tokens, due to time that passed.
-	delta := lim.limit.tokensFromDuration(elapsed)
+	delta := lim.limit.tokensFromDuration(elapsed, lim.unit)
 	tokens := lim.tokens + delta
 	if burst := float64(lim.burst); tokens > burst {
 		tokens = burst

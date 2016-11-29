@@ -40,7 +40,7 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 
 		args := c.RemainingArgs()
 		switch len(args) {
-		case 2:
+		case 3:
 			rule.Rate, err = strconv.ParseFloat(args[0], 64)
 			if err != nil {
 				return rules, err
@@ -49,13 +49,14 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 			if err != nil {
 				return rules, err
 			}
+			rule.Unit = args[2]
 			for c.NextBlock() {
 				rule.Resources = append(rule.Resources, c.Val())
 				if c.NextArg() {
 					return rules, c.Errf("Expecting only one resource per line (extra '%s')", c.Val())
 				}
 			}
-		case 3:
+		case 4:
 			rule.Resources = append(rule.Resources, args[0])
 			rule.Rate, err = strconv.ParseFloat(args[1], 64)
 			if err != nil {
@@ -65,6 +66,7 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 			if err != nil {
 				return rules, err
 			}
+			rule.Unit = args[3]
 		default:
 			return rules, c.ArgErr()
 		}

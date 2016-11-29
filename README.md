@@ -11,7 +11,7 @@
 For single resource:
 
 ```
-ratelimit path rate burst
+ratelimit path rate burst unit
 ```
 
 - path is the file or directory to apply `rate limit`
@@ -23,7 +23,7 @@ ratelimit path rate burst
 For multiple resources:
 
 ```
-ratelimit rate burst {
+ratelimit rate burst unit {
     resources
 }
 ```
@@ -36,13 +36,13 @@ ratelimit rate burst {
 Limit clients to 2 requests per second (bursts of 3) to any resources in /r:
 
 ```
-ratelimit /r 2 3
+ratelimit /r 2 3 second
 ```
 
 For the listed paths, limit clients to 2 requests per second (bursts of 2):
 
 ```
-ratelimit 2 2 {
+ratelimit 2 2 minute {
     /foo.html
     /dir
 }
