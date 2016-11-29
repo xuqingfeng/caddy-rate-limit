@@ -10,7 +10,7 @@ import (
 
 var (
 	server *httptest.Server
-	cl     *CustomLimiter
+	cl     *CaddyLimiter
 )
 
 func TestMain(m *testing.M) {
@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 	server = httptest.NewServer(http.HandlerFunc(fakeHandler))
 	defer server.Close()
 
-	cl = NewCustomLimiter()
+	cl = NewCaddyLimiter()
 
 	os.Exit(m.Run())
 }

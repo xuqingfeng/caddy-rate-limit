@@ -10,7 +10,7 @@ import (
 
 func TestSetup(t *testing.T) {
 
-	c := caddy.NewTestController("http", `ratelimit / 2 2`)
+	c := caddy.NewTestController("http", `ratelimit / 2 2 second`)
 	err := setup(c)
 	if err != nil {
 		t.Errorf("Expected no errors, got: %v", err)
@@ -29,27 +29,27 @@ func TestRateLimitParse(t *testing.T) {
 		expected  []Rule
 	}{
 		{
-			`ratelimit / 2 0`, false, []Rule{
-				{2, 0, []string{"/"}},
+			`ratelimit / 2 0 second`, false, []Rule{
+				{2, 0, []string{"/"}, "second"},
 			},
 		},
 		{
-			`ratelimit / 2 1`, false, []Rule{
-				{2, 1, []string{"/"}},
+			`ratelimit / 2 1 minute`, false, []Rule{
+				{2, 1, []string{"/"}, "minute"},
 			},
 		},
 		{
-			`ratelimit / notFloat64 0`, true, []Rule{},
+			`ratelimit / notFloat64 0 second`, true, []Rule{},
 		},
 		{
-			`ratelimit / 2 0.1`, true, []Rule{},
+			`ratelimit / 2 0.1 second`, true, []Rule{},
 		},
 		{
-			`ratelimit 2 2 {
+			`ratelimit 2 2 second {
                 /resource0
                 /resource1
             }`, false, []Rule{
-				{2, 2, []string{"/resource0", "/resource1"}},
+				{2, 2, []string{"/resource0", "/resource1"}, "second"},
 			},
 		},
 	}
@@ -75,6 +75,9 @@ func TestRateLimitParse(t *testing.T) {
 			}
 			if actualRule.Burst != expectedRule.Burst {
 				t.Errorf("Test %d, rule %d: Expected burst '%d', got '%d'", i, j, expectedRule.Burst, actualRule.Burst)
+			}
+			if actualRule.Unit != expectedRule.Unit {
+				t.Errorf("Test %d, rule %d: Expected unit '%s', got '%s'", i, j, expectedRule.Unit, actualRule.Unit)
 			}
 			if !reflect.DeepEqual(actualRule.Resources, expectedRule.Resources) {
 				t.Errorf("Test %d, rule %d: Expected resource '%v', got '%v'", i, j, expectedRule.Resources, actualRule.Resources)

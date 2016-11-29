@@ -18,16 +18,17 @@ type Rule struct {
 	Rate      float64
 	Burst     int
 	Resources []string
+	Unit      string
 }
 
 var (
-	customLimiter *CustomLimiter
-	localIpNets   []*net.IPNet
+	caddyLimiter *CaddyLimiter
+	localIpNets  []*net.IPNet
 )
 
 func init() {
 
-	customLimiter = NewCustomLimiter()
+	caddyLimiter = NewCaddyLimiter()
 	// https://en.wikipedia.org/wiki/Private_network
 	localCIDRs := []string{
 		"127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "::1/128", "fc00::/7",
@@ -55,7 +56,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 
 			sliceKeys := buildKeys(res, r)
 			for _, keys := range sliceKeys {
-				ret := customLimiter.Allow(keys, rule)
+				ret := caddyLimiter.Allow(keys, rule)
 				if !ret {
 					return http.StatusTooManyRequests, nil
 				}
