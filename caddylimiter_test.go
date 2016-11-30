@@ -24,7 +24,7 @@ func TestAllow(t *testing.T) {
 			[]string{"127.0.0.1", "/"}, Rule{Rate: 1, Burst: 0, Unit: "hour"}, 1, false, false,
 		},
 		{
-			[]string{"127.0.0.1", "/"}, Rule{Rate: 0, Burst: 0}, 2, false, false,
+			[]string{"127.0.0.1", "/"}, Rule{Rate: 0, Burst: 0}, 2, false, true,
 		},
 	}
 
