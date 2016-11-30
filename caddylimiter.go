@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/xuqingfeng/caddy-rate-limit/libs/rate"
+	"golang.org/x/time/rate"
 )
 
 type CaddyLimiter struct {
@@ -28,7 +28,17 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 
 	keysJoined := strings.Join(keys, "|")
 	if _, found := cl.Keys[keysJoined]; !found {
-		cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate), rule.Burst, rule.Unit)
+		switch rule.Unit {
+		case "second":
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Every(time.Second), rule.Burst)
+		case "minute":
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Every(time.Minute), rule.Burst)
+		case "hour":
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Every(time.Hour), rule.Burst)
+		default:
+			// Infinite
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Every(0), rule.Burst)
+		}
 	}
 
 	return cl.Keys[keysJoined].AllowN(time.Now(), n)
