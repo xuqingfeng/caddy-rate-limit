@@ -20,7 +20,7 @@ ratelimit path rate burst unit
 
 - burst is the maximum burst size client can exceed; burst >= rate (eg. 2)
  
-- unit is the interval of every calculation (eg. second, minute, hour)
+- unit is the time interval (current support: second, minute, hour)
 
 For multiple resources:
 
@@ -41,7 +41,7 @@ Limit clients to 2 requests per second (bursts of 3) to any resources in /r:
 ratelimit /r 2 3 second
 ```
 
-For the listed paths, limit clients to 2 requests per second (bursts of 2):
+For the listed paths, limit clients to 2 requests per minute (bursts of 2):
 
 ```
 ratelimit 2 2 minute {
