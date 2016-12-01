@@ -1,10 +1,10 @@
 package ratelimit
 
 import (
+	"net"
 	"net/http"
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"net"
 )
 
 // RateLimit is an http.Handler that can limit request rate to specific paths or files
@@ -15,7 +15,7 @@ type RateLimit struct {
 
 // Rule is a configuration for ratelimit
 type Rule struct {
-	Rate      float64
+	Rate      int64
 	Burst     int
 	Resources []string
 	Unit      string
@@ -50,7 +50,11 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 			}
 
 			// filter local ip address
-			if IsLocalIpAddress(r.RemoteAddr, localIpNets) {
+			address, err := GetRemoteIP(r)
+			if err != nil {
+				return http.StatusInternalServerError, err
+			}
+			if IsLocalIpAddress(address, localIpNets) {
 				continue
 			}
 

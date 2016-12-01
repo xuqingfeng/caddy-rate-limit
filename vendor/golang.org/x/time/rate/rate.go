@@ -56,7 +56,6 @@ func Every(interval time.Duration) Limit {
 type Limiter struct {
 	limit Limit
 	burst int
-	unit  string
 
 	mu     sync.Mutex
 	tokens float64
@@ -83,11 +82,10 @@ func (lim *Limiter) Burst() int {
 
 // NewLimiter returns a new Limiter that allows events up to rate r and permits
 // bursts of at most b tokens.
-func NewLimiter(r Limit, b int, u string) *Limiter {
+func NewLimiter(r Limit, b int) *Limiter {
 	return &Limiter{
 		limit: r,
 		burst: b,
-		unit:  u,
 	}
 }
 
@@ -168,7 +166,7 @@ func (r *Reservation) CancelAt(now time.Time) {
 	// calculate tokens to restore
 	// The duration between lim.lastEvent and r.timeToAct tells us how many tokens were reserved
 	// after r was obtained. These tokens should not be restored.
-	restoreTokens := float64(r.tokens) - r.limit.tokensFromDuration(r.lim.lastEvent.Sub(r.timeToAct), r.lim.unit)
+	restoreTokens := float64(r.tokens) - r.limit.tokensFromDuration(r.lim.lastEvent.Sub(r.timeToAct))
 	if restoreTokens <= 0 {
 		return
 	}
@@ -183,7 +181,7 @@ func (r *Reservation) CancelAt(now time.Time) {
 	r.lim.last = now
 	r.lim.tokens = tokens
 	if r.timeToAct == r.lim.lastEvent {
-		prevEvent := r.timeToAct.Add(r.limit.durationFromTokens(float64(-r.tokens), r.lim.unit))
+		prevEvent := r.timeToAct.Add(r.limit.durationFromTokens(float64(-r.tokens)))
 		if !prevEvent.Before(now) {
 			r.lim.lastEvent = prevEvent
 		}
@@ -201,9 +199,10 @@ func (lim *Limiter) Reserve() *Reservation {
 // The Limiter takes this Reservation into account when allowing future events.
 // ReserveN returns false if n exceeds the Limiter's burst size.
 // Usage example:
-//   r, ok := lim.ReserveN(time.Now(), 1)
-//   if !ok {
+//   r := lim.ReserveN(time.Now(), 1)
+//   if !r.OK() {
 //     // Not allowed to act! Did you remember to set lim.burst to be > 0 ?
+//     return
 //   }
 //   time.Sleep(r.Delay())
 //   Act()
@@ -223,8 +222,9 @@ func (lim *Limiter) Wait(ctx context.Context) (err error) {
 // WaitN blocks until lim permits n events to happen.
 // It returns an error if n exceeds the Limiter's burst size, the Context is
 // canceled, or the expected wait time exceeds the Context's Deadline.
+// The burst limit is ignored if the rate limit is Inf.
 func (lim *Limiter) WaitN(ctx context.Context, n int) (err error) {
-	if n > lim.burst {
+	if n > lim.burst && lim.limit != Inf {
 		return fmt.Errorf("rate: Wait(n=%d) exceeds limiter's burst %d", n, lim.burst)
 	}
 	// Check if ctx is already cancelled
@@ -283,9 +283,9 @@ func (lim *Limiter) SetLimitAt(now time.Time, newLimit Limit) {
 // reserveN returns Reservation, not *Reservation, to avoid allocation in AllowN and WaitN.
 func (lim *Limiter) reserveN(now time.Time, n int, maxFutureReserve time.Duration) Reservation {
 	lim.mu.Lock()
-	defer lim.mu.Unlock()
 
 	if lim.limit == Inf {
+		lim.mu.Unlock()
 		return Reservation{
 			ok:        true,
 			lim:       lim,
@@ -302,7 +302,7 @@ func (lim *Limiter) reserveN(now time.Time, n int, maxFutureReserve time.Duratio
 	// Calculate the wait duration
 	var waitDuration time.Duration
 	if tokens < 0 {
-		waitDuration = lim.limit.durationFromTokens(-tokens, lim.unit)
+		waitDuration = lim.limit.durationFromTokens(-tokens)
 	}
 
 	// Decide result
@@ -328,6 +328,7 @@ func (lim *Limiter) reserveN(now time.Time, n int, maxFutureReserve time.Duratio
 		lim.last = last
 	}
 
+	lim.mu.Unlock()
 	return r
 }
 
@@ -340,14 +341,14 @@ func (lim *Limiter) advance(now time.Time) (newNow time.Time, newLast time.Time,
 	}
 
 	// Avoid making delta overflow below when last is very old.
-	maxElapsed := lim.limit.durationFromTokens(float64(lim.burst)-lim.tokens, lim.unit)
+	maxElapsed := lim.limit.durationFromTokens(float64(lim.burst) - lim.tokens)
 	elapsed := now.Sub(last)
 	if elapsed > maxElapsed {
 		elapsed = maxElapsed
 	}
 
 	// Calculate the new number of tokens, due to time that passed.
-	delta := lim.limit.tokensFromDuration(elapsed, lim.unit)
+	delta := lim.limit.tokensFromDuration(elapsed)
 	tokens := lim.tokens + delta
 	if burst := float64(lim.burst); tokens > burst {
 		tokens = burst
@@ -358,35 +359,13 @@ func (lim *Limiter) advance(now time.Time) (newNow time.Time, newLast time.Time,
 
 // durationFromTokens is a unit conversion function from the number of tokens to the duration
 // of time it takes to accumulate them at a rate of limit tokens per second.
-func (limit Limit) durationFromTokens(tokens float64, unit string) time.Duration {
-
-	switch unit {
-	case "second":
-		seconds := tokens / float64(limit)
-		return time.Nanosecond * time.Duration(1e9*seconds)
-	case "minute":
-		minutes := tokens / float64(limit)
-		return time.Nanosecond * time.Duration(1e9*60*minutes)
-	case "hour":
-		hours := tokens / float64(limit)
-		return time.Nanosecond * time.Duration(1e9*60*60*hours)
-	default:
-		return time.Nanosecond * time.Duration(1e9*60*60*24*365)
-	}
+func (limit Limit) durationFromTokens(tokens float64) time.Duration {
+	seconds := tokens / float64(limit)
+	return time.Nanosecond * time.Duration(1e9*seconds)
 }
 
 // tokensFromDuration is a unit conversion function from a time duration to the number of tokens
 // which could be accumulated during that duration at a rate of limit tokens per second.
-func (limit Limit) tokensFromDuration(d time.Duration, unit string) float64 {
-
-	switch unit {
-	case "second":
-		return d.Seconds() * float64(limit)
-	case "minute":
-		return d.Minutes() * float64(limit)
-	case "hour":
-		return d.Hours() * float64(limit)
-	default:
-		return 0
-	}
+func (limit Limit) tokensFromDuration(d time.Duration) float64 {
+	return d.Seconds() * float64(limit)
 }
