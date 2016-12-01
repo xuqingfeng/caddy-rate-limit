@@ -46,7 +46,7 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 
 func buildKeys(res string, r *http.Request) [][]string {
 
-	remoteIP := GetRemoteIP(r)
+	remoteIP, _ := GetRemoteIP(r)
 	sliceKeys := make([][]string, 0)
 
 	if len(remoteIP) != 0 {

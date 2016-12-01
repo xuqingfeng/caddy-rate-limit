@@ -3,7 +3,6 @@ package ratelimit
 import (
 	"net"
 	"net/http"
-	"strings"
 )
 
 // IsLocalIpAddress check whether a ip belongs to private network
@@ -23,13 +22,17 @@ func IsLocalIpAddress(address string, localIpNets []*net.IPNet) bool {
 
 // GetRemoteIP returns the ip of requester
 // Don't care if the ip is real or not
-func GetRemoteIP(r *http.Request) string {
+func GetRemoteIP(r *http.Request) (string, error) {
 
-	remoteAddress := r.RemoteAddr
+	// Don't work for mac local
+	//remoteAddress := r.RemoteAddr
+	//
+	//idx := strings.LastIndex(remoteAddress, ":")
+	//if idx == -1 {
+	//	return remoteAddress
+	//}
+	//return remoteAddress[:idx]
 
-	idx := strings.LastIndex(remoteAddress, ":")
-	if idx == -1 {
-		return remoteAddress
-	}
-	return remoteAddress[:idx]
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	return host, err
 }

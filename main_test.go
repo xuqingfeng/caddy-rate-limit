@@ -16,7 +16,7 @@ var (
 func TestMain(m *testing.M) {
 
 	fakeHandler := func(w http.ResponseWriter, r *http.Request) {
-		ip := GetRemoteIP(r)
+		ip, _ := GetRemoteIP(r)
 		fmt.Fprint(w, ip)
 	}
 	server = httptest.NewServer(http.HandlerFunc(fakeHandler))
