@@ -15,7 +15,7 @@ type RateLimit struct {
 
 // Rule is a configuration for ratelimit
 type Rule struct {
-	Rate      float64
+	Rate      int64
 	Burst     int
 	Resources []string
 	Unit      string
@@ -49,7 +49,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 				continue
 			}
 
-			// filter local ip address
+            // filter local ip address
 			if IsLocalIpAddress(r.RemoteAddr, localIpNets) {
 				continue
 			}

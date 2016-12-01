@@ -22,7 +22,7 @@ func IsLocalIpAddress(address string, localIpNets []*net.IPNet) bool {
 }
 
 // GetRemoteIP returns the ip of requester
-// Doesn't care about the ip is real or not
+// Don't care if the ip is real or not
 func GetRemoteIP(r *http.Request) string {
 
 	remoteAddress := r.RemoteAddr

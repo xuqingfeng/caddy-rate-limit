@@ -34,8 +34,8 @@ func TestRateLimitParse(t *testing.T) {
 			},
 		},
 		{
-			`ratelimit / 2 1 minute`, false, []Rule{
-				{2, 1, []string{"/"}, "minute"},
+			`ratelimit / 2 1 badUnit`, false, []Rule{
+				{2, 1, []string{"/"}, "badUnit"},
 			},
 		},
 		{

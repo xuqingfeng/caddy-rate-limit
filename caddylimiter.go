@@ -30,14 +30,14 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 	if _, found := cl.Keys[keysJoined]; !found {
 		switch rule.Unit {
 		case "second":
-			cl.Keys[keysJoined] = rate.NewLimiter(rate.Every(time.Second), rule.Burst)
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(time.Second.Seconds()), rule.Burst)
 		case "minute":
-			cl.Keys[keysJoined] = rate.NewLimiter(rate.Every(time.Minute), rule.Burst)
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(time.Minute.Seconds()), rule.Burst)
 		case "hour":
-			cl.Keys[keysJoined] = rate.NewLimiter(rate.Every(time.Hour), rule.Burst)
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(time.Hour.Seconds()), rule.Burst)
 		default:
 			// Infinite
-			cl.Keys[keysJoined] = rate.NewLimiter(rate.Every(0), rule.Burst)
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Inf, rule.Burst)
 		}
 	}
 
