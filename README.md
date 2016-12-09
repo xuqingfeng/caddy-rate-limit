@@ -52,9 +52,13 @@ ratelimit 2 2 minute {
 
 ### Test
 
+- `docker build -t xuqingfeng/caddy-rate-limit .`
 
+- `docker run -d -p 2016:2016 -n ratelimit xuqingfeng/caddy-rate-limit`
 
-#### Inspired By
+- `curl localhost:2016`
+
+**Inspired By**
 
 [http://nginx.org/en/docs/http/ngx_http_limit_req_module.html](http://nginx.org/en/docs/http/ngx_http_limit_req_module.html)
 
