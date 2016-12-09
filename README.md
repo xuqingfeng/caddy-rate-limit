@@ -16,11 +16,11 @@ ratelimit path rate burst unit
 
 - path is the file or directory to apply `rate limit`
 
-- rate is the limited request in every time unit (r/second, r/minute, r/hour) (eg. 1)
+- rate is the limited request in every time unit (r/s, r/m, r/h) (e.g. 1)
 
-- burst is the maximum burst size client can exceed; burst >= rate (eg. 2)
+- burst is the maximum burst size client can exceed; burst >= rate (e.g. 2)
  
-- unit is the time interval (current support: second, minute, hour)
+- unit is the time interval (currently support: `second`, `minute`, `hour`)
 
 For multiple resources:
 

@@ -1,0 +1,12 @@
+localhost:2016 {
+
+    root /go/src/github.com/xuqingfeng/caddy-rate-limit/tests/site
+
+    gzip
+    log ../access.log
+    errors ../error.log
+
+    ratelimit /r 1 2 second
+    ratelimit /u 2 3 minute
+    ratelimit /i 2 3 infinite
+}
