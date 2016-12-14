@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"golang.org/x/time/rate"
-    "github.com/influxdata/influxdb/pkg/limiter"
 )
 
 type CaddyLimiter struct {
@@ -47,8 +46,8 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 
 func (cl *CaddyLimiter) RetryAfter(keys []string) time.Duration {
 
-    keysJoined := strings.Join(keys, "|")
-    reserve := cl.Keys[keysJoined].Reserve()
+	keysJoined := strings.Join(keys, "|")
+	reserve := cl.Keys[keysJoined].Reserve()
 	if reserve.OK() {
 		retryAfter := reserve.Delay()
 		reserve.Cancel()

@@ -65,8 +65,8 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 				ret := caddyLimiter.Allow(keys, rule)
 				retryAfter = caddyLimiter.RetryAfter(keys)
 				if !ret {
-                    w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
-                    return http.StatusTooManyRequests, nil
+					w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
+					return http.StatusTooManyRequests, nil
 				}
 			}
 		}
