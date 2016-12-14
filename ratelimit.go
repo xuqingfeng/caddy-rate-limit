@@ -3,6 +3,7 @@ package ratelimit
 import (
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
@@ -43,6 +44,7 @@ func init() {
 
 func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 
+	retryAfter := time.Duration(0)
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
 			if !httpserver.Path(r.URL.Path).Matches(res) {
@@ -61,12 +63,15 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 			sliceKeys := buildKeys(res, r)
 			for _, keys := range sliceKeys {
 				ret := caddyLimiter.Allow(keys, rule)
+				retryAfter = caddyLimiter.RetryAfter(keys, rule)
 				if !ret {
 					return http.StatusTooManyRequests, nil
 				}
 			}
 		}
 	}
+
+	w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
 
 	return rl.Next.ServeHTTP(w, r)
 }

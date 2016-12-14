@@ -44,6 +44,34 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 	return cl.Keys[keysJoined].AllowN(time.Now(), n)
 }
 
+func (cl *CaddyLimiter) RetryAfter(keys []string, rule Rule) time.Duration {
+
+	keysJoined := strings.Join(keys, "|")
+	if _, found := cl.Keys[keysJoined]; !found {
+		switch rule.Unit {
+		case "second":
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(time.Second.Seconds()), rule.Burst)
+		case "minute":
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(time.Minute.Seconds()), rule.Burst)
+		case "hour":
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(time.Hour.Seconds()), rule.Burst)
+		default:
+			// Infinite
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Inf, rule.Burst)
+		}
+	}
+
+	reserve := cl.Keys[keysJoined].Reserve()
+	if reserve.OK() {
+		retryAfter := reserve.Delay()
+		reserve.Cancel()
+		return retryAfter
+	}
+
+	reserve.Cancel()
+	return rate.InfDuration
+}
+
 func buildKeys(res string, r *http.Request) [][]string {
 
 	remoteIP, _ := GetRemoteIP(r)
