@@ -58,6 +58,8 @@ ratelimit 2 2 minute {
 
 - `curl localhost:2016`
 
+---
+
 **Inspired By**
 
 [http://nginx.org/en/docs/http/ngx_http_limit_req_module.html](http://nginx.org/en/docs/http/ngx_http_limit_req_module.html)
