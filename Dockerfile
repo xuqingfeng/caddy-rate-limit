@@ -1,4 +1,4 @@
-FROM golang:1.7
+FROM golang:1.7-alpine
 
 WORKDIR /go/src/github.com/xuqingfeng/caddy-rate-limit
 
