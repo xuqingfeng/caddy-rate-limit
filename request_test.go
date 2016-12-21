@@ -1,7 +1,7 @@
 package ratelimit
 
 import (
-	"io/ioutil"
+	"bytes"
 	"net/http"
 	"testing"
 )
@@ -83,11 +83,13 @@ func TestGetRemoteIP(t *testing.T) {
 		if err != nil {
 			t.Errorf("Test %d errored: '%v'", i, err)
 		}
-		// FIXME: 16/7/21 bytes.NewBuffer
-		ip, err := ioutil.ReadAll(resp.Body)
+		// bytes.NewBuffer https://stackoverflow.com/questions/37314715/reading-http-response-body-stream
+		buf := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
+		_, err := buf.ReadFrom(resp.Body)
 		if err != nil {
 			t.Errorf("Test %d errored: '%v'", i, err)
 		}
+		ip := buf.Bytes()
 		if string(ip) != test.expected {
 			t.Errorf("Test %d Expected %s, get %s", i, test.expected, ip)
 		}

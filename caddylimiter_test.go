@@ -8,7 +8,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-func TestAllowAndRetryAfter(t *testing.T) {
+func TestAllowNAndRetryAfter(t *testing.T) {
 
 	tests := []struct {
 		keys             []string
@@ -44,4 +44,26 @@ func TestAllowAndRetryAfter(t *testing.T) {
 			t.Errorf("Test %d: expected %t, got %t", i, test.expected, actual)
 		}
 	}
+}
+
+func BenchmarkSingleKey(b *testing.B) {
+
+	keys := []string{"209.95.60.145", "/"}
+	for n := 0; n < b.N; n++ {
+		benchmarkAllowNAndRetryAfter(keys)
+	}
+}
+
+func BenchmarkRandomKey(b *testing.B) {
+
+	for n := 0; n < b.N; n++ {
+		keys := []string{"209.95.60.145", "/" + strconv.Itoa(n)}
+		benchmarkAllowNAndRetryAfter(keys)
+	}
+}
+
+func benchmarkAllowNAndRetryAfter(keys []string) {
+
+	cl.AllowN(keys, Rule{Rate: 2, Burst: 2, Unit: "second"}, 2)
+	cl.RetryAfter(keys)
 }
