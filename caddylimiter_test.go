@@ -1,47 +1,70 @@
 package ratelimit
 
 import (
-	"strconv"
-	"testing"
-	"time"
+    "strconv"
+    "testing"
+    "time"
 
-	"golang.org/x/time/rate"
+    "golang.org/x/time/rate"
 )
 
-func TestAllowAndRetryAfter(t *testing.T) {
+func TestAllowNAndRetryAfter(t *testing.T) {
 
-	tests := []struct {
-		keys             []string
-		rule             Rule
-		qps              int
-		shouldRetryAfter time.Duration
-		shouldErr        bool
-		expected         bool
-	}{
-		{
-			[]string{"127.0.0.1", "/"}, Rule{Rate: 2, Burst: 2, Unit: "second"}, 2, 0, false, true,
-		},
-		{
-			[]string{"127.0.0.1", "/"}, Rule{Rate: 1, Burst: 2, Unit: "minute"}, 2, 30 * time.Second, false, true,
-		},
-		{
-			[]string{"127.0.0.1", "/"}, Rule{Rate: 1, Burst: 0, Unit: "hour"}, 1, rate.InfDuration, false, false,
-		},
-		{
-			[]string{"127.0.0.1", "/"}, Rule{Rate: 0, Burst: 0}, 2, 0, false, true,
-		},
-	}
+    tests := []struct {
+        keys             []string
+        rule             Rule
+        qps              int
+        shouldRetryAfter time.Duration
+        shouldErr        bool
+        expected         bool
+    }{
+        {
+            []string{"127.0.0.1", "/"}, Rule{Rate: 2, Burst: 2, Unit: "second"}, 2, 0, false, true,
+        },
+        {
+            []string{"127.0.0.1", "/"}, Rule{Rate: 1, Burst: 2, Unit: "minute"}, 2, 30 * time.Second, false, true,
+        },
+        {
+            []string{"127.0.0.1", "/"}, Rule{Rate: 1, Burst: 0, Unit: "hour"}, 1, rate.InfDuration, false, false,
+        },
+        {
+            []string{"127.0.0.1", "/"}, Rule{Rate: 0, Burst: 0}, 2, 0, false, true,
+        },
+    }
 
-	for i, test := range tests {
-		test.keys = append(test.keys, strconv.Itoa(i))
-		t.Logf("keys: %v", test.keys)
-		actual := cl.AllowN(test.keys, test.rule, test.qps)
-		retryAfter := cl.RetryAfter(test.keys)
-		if retryAfter < test.shouldRetryAfter {
-			t.Errorf("Test %d: shouldeRetryAfter %d, got %d", i, test.shouldRetryAfter, retryAfter)
-		}
-		if actual != test.expected {
-			t.Errorf("Test %d: expected %t, got %t", i, test.expected, actual)
-		}
-	}
+    for i, test := range tests {
+        test.keys = append(test.keys, strconv.Itoa(i))
+        t.Logf("keys: %v", test.keys)
+        actual := cl.AllowN(test.keys, test.rule, test.qps)
+        retryAfter := cl.RetryAfter(test.keys)
+        if retryAfter < test.shouldRetryAfter {
+            t.Errorf("Test %d: shouldeRetryAfter %d, got %d", i, test.shouldRetryAfter, retryAfter)
+        }
+        if actual != test.expected {
+            t.Errorf("Test %d: expected %t, got %t", i, test.expected, actual)
+        }
+    }
 }
+
+func BenchmarkSingleKey(b *testing.B) {
+
+    keys := []string{"209.95.60.145", "/"}
+    for n := 0; n < b.N; n++ {
+        benchmarkAllowNAndRetryAfter(keys)
+    }
+}
+
+func BenchmarkRandomKey(b *testing.B) {
+
+    for n := 0; n < b.N; n++ {
+        keys := []string{"209.95.60.145", "/" + strconv.Itoa(n)}
+        benchmarkAllowNAndRetryAfter(keys)
+    }
+}
+
+func benchmarkAllowNAndRetryAfter(keys []string) {
+
+    cl.AllowN(keys, Rule{Rate: 2, Burst: 2, Unit: "second"}, 2)
+    cl.RetryAfter(keys)
+}
+
