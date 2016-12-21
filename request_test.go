@@ -1,10 +1,9 @@
 package ratelimit
 
 import (
-	"io/ioutil"
+	"bytes"
 	"net/http"
 	"testing"
-    "bytes"
 )
 
 func TestIsLocalIpAddress(t *testing.T) {
@@ -85,12 +84,12 @@ func TestGetRemoteIP(t *testing.T) {
 			t.Errorf("Test %d errored: '%v'", i, err)
 		}
 		// bytes.NewBuffer https://stackoverflow.com/questions/37314715/reading-http-response-body-stream
-        buf := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
-        _, err := buf.ReadFrom(resp.Body)
-        if err != nil {
-            t.Errorf("Test %d errored: '%v'", i, err)
-        }
-        ip := buf.Bytes()
+		buf := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
+		_, err := buf.ReadFrom(resp.Body)
+		if err != nil {
+			t.Errorf("Test %d errored: '%v'", i, err)
+		}
+		ip := buf.Bytes()
 		if string(ip) != test.expected {
 			t.Errorf("Test %d Expected %s, get %s", i, test.expected, ip)
 		}
