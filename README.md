@@ -6,7 +6,7 @@
 
 ### Syntax
 
-**Excessive requests will be terminated with an error 429 (Too Many Requests) !**
+**Excessive requests will be terminated with an error 429 (Too Many Requests) ! And `X-RateLimit-RetryAfter` header will be returned .**
 
 For single resource:
 
