@@ -1,4 +1,4 @@
-FROM golang:1.7
+FROM golang:1.8
 
 RUN go get -v github.com/caddyserver/caddydev \
     && go get -v github.com/mholt/caddy/caddy

@@ -58,8 +58,6 @@ ratelimit 2 2 minute {
 
 - `docker run -d -p 2016:2016 --name ratelimit xuqingfeng/caddy-rate-limit`
 
-- `curl localhost:2016`
-
 ---
 
 **Inspired By**
