@@ -8,7 +8,7 @@
 
 **Excessive requests will be terminated with an error 429 (Too Many Requests)! And `X-RateLimit-RetryAfter` header will be returned.**
 
-**[Local IP](https://en.wikipedia.org/wiki/Private_network) will be ignored.**
+**[Private IPs](https://en.wikipedia.org/wiki/Private_network) will be ignored.**
 
 For single resource:
 
