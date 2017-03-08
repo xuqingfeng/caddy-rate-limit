@@ -10,5 +10,8 @@ fmt:
 test:
 	go test -v $$(go list ./... | grep -v /vendor/)
 
+race:
+	go test -v -race $$(go list ./... | grep -v /vendor/)
+
 benchmark:
 	go test -run=xxx -bench=.

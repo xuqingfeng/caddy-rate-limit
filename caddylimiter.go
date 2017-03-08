@@ -3,6 +3,7 @@ package ratelimit
 import (
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -10,6 +11,7 @@ import (
 
 type CaddyLimiter struct {
 	Keys map[string]*rate.Limiter
+	mu   sync.Mutex
 }
 
 func NewCaddyLimiter() *CaddyLimiter {
@@ -27,7 +29,9 @@ func (cl *CaddyLimiter) Allow(keys []string, rule Rule) bool {
 func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 
 	keysJoined := strings.Join(keys, "|")
+	cl.mu.Lock()
 	if _, found := cl.Keys[keysJoined]; !found {
+
 		switch rule.Unit {
 		case "second":
 			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(time.Second.Seconds()), rule.Burst)
@@ -40,6 +44,7 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 			cl.Keys[keysJoined] = rate.NewLimiter(rate.Inf, rule.Burst)
 		}
 	}
+	cl.mu.Unlock()
 
 	return cl.Keys[keysJoined].AllowN(time.Now(), n)
 }

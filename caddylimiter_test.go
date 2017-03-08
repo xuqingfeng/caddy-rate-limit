@@ -44,6 +44,22 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 			t.Errorf("Test %d: expected %t, got %t", i, test.expected, actual)
 		}
 	}
+
+	// spawn multiple goroutines to test concurrent read/write in map
+	num := make([]int, 1000)
+	for i := range num {
+		t.Logf("index: %v", i)
+		go func() {
+			for {
+				cl.AllowN(tests[0].keys, tests[0].rule, tests[0].qps)
+			}
+		}()
+		go func() {
+			for {
+				cl.AllowN(tests[0].keys, tests[0].rule, tests[0].qps)
+			}
+		}()
+	}
 }
 
 func BenchmarkSingleKey(b *testing.B) {
