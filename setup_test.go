@@ -71,7 +71,7 @@ func TestRateLimitParse(t *testing.T) {
 			actualRule := actual[j]
 
 			if actualRule.Rate != expectedRule.Rate {
-				t.Errorf("Test %d, rule %d: Expected rate '%f', got '%f'", i, j, expectedRule.Rate, actualRule.Rate)
+				t.Errorf("Test %d, rule %d: Expected rate '%d', got '%d'", i, j, expectedRule.Rate, actualRule.Rate)
 			}
 			if actualRule.Burst != expectedRule.Burst {
 				t.Errorf("Test %d, rule %d: Expected burst '%d', got '%d'", i, j, expectedRule.Burst, actualRule.Burst)
