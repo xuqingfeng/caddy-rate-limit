@@ -54,9 +54,10 @@ ratelimit 2 2 minute {
 
 ### Test
 
-- `docker build -t xuqingfeng/caddy-rate-limit .`
-
-- `docker run -d -p 2016:2016 --name ratelimit xuqingfeng/caddy-rate-limit`
+```bash
+docker pull xuqingfeng/caddy-rate-limit
+docker run -d -p 2016:2016 --name ratelimit xuqingfeng/caddy-rate-limit
+```
 
 ---
 
