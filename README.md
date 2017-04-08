@@ -34,6 +34,8 @@ ratelimit rate burst unit {
 
 - resources is a list of files/directories to apply `rate limit`, one per line
 
+**Note:** If you don't want to apply `rate limit` on some special resources, add `^` in front of the path.
+
 
 ### Examples
 
@@ -43,12 +45,13 @@ Limit clients to 2 requests per second (bursts of 3) to any resources in /r:
 ratelimit /r 2 3 second
 ```
 
-For the listed paths, limit clients to 2 requests per minute (bursts of 2):
+For the listed paths, limit clients to 2 requests per minute (bursts of 2) and always ignore `/dir/app.js`:
 
 ```
 ratelimit 2 2 minute {
     /foo.html
     /dir
+    ^/dir/app.js
 }
 ```
 

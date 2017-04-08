@@ -24,7 +24,7 @@ type Rule struct {
 }
 
 const (
-	ignorePrivateIP = false
+	ignorePrivateIP = true
 	symbol          = "^"
 )
 
