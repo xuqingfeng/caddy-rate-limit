@@ -56,7 +56,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
 			if strings.HasPrefix(res, symbol) {
-				res = strings.TrimLeft(res, symbol)
+				res = strings.TrimPrefix(res, symbol)
 				if httpserver.Path(r.URL.Path).Matches(res) {
 					return rl.Next.ServeHTTP(w, r)
 				}
