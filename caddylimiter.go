@@ -11,7 +11,7 @@ import (
 
 type CaddyLimiter struct {
 	Keys map[string]*rate.Limiter
-	mu   sync.Mutex
+	sync.Mutex
 }
 
 func NewCaddyLimiter() *CaddyLimiter {
@@ -21,15 +21,17 @@ func NewCaddyLimiter() *CaddyLimiter {
 	}
 }
 
+// Allow is just a shortcut for AllowN
 func (cl *CaddyLimiter) Allow(keys []string, rule Rule) bool {
 
 	return cl.AllowN(keys, rule, 1)
 }
 
+// AllowN check if n count are allowed for a specific key
 func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 
 	keysJoined := strings.Join(keys, "|")
-	cl.mu.Lock()
+	cl.Lock()
 	if _, found := cl.Keys[keysJoined]; !found {
 
 		switch rule.Unit {
@@ -44,11 +46,12 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 			cl.Keys[keysJoined] = rate.NewLimiter(rate.Inf, rule.Burst)
 		}
 	}
-	cl.mu.Unlock()
+	cl.Unlock()
 
 	return cl.Keys[keysJoined].AllowN(time.Now(), n)
 }
 
+// RetryAfter return a helper message for client
 func (cl *CaddyLimiter) RetryAfter(keys []string) time.Duration {
 
 	keysJoined := strings.Join(keys, "|")
@@ -63,6 +66,7 @@ func (cl *CaddyLimiter) RetryAfter(keys []string) time.Duration {
 	return rate.InfDuration
 }
 
+// buildKeys combine client ip and resource
 func buildKeys(res string, r *http.Request) [][]string {
 
 	remoteIP, _ := GetRemoteIP(r)

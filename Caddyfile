@@ -9,3 +9,4 @@ errors stderr
 ratelimit /s 1 2 second
 ratelimit /m 2 3 minute
 ratelimit /i 2 3 infinite
+ratelimit ^/m/u 1 1 minute

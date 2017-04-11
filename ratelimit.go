@@ -3,6 +3,7 @@ package ratelimit
 import (
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/mholt/caddy/caddyhttp/httpserver"
@@ -21,6 +22,11 @@ type Rule struct {
 	Resources []string
 	Unit      string
 }
+
+const (
+	ignorePrivateIP = true
+	symbol          = "^"
+)
 
 var (
 	caddyLimiter *CaddyLimiter
@@ -45,19 +51,34 @@ func init() {
 func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 
 	retryAfter := time.Duration(0)
+
+	// handle exception first
+	for _, rule := range rl.Rules {
+		for _, res := range rule.Resources {
+			if strings.HasPrefix(res, symbol) {
+				res = strings.TrimPrefix(res, symbol)
+				if httpserver.Path(r.URL.Path).Matches(res) {
+					return rl.Next.ServeHTTP(w, r)
+				}
+			}
+		}
+	}
+
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
 			if !httpserver.Path(r.URL.Path).Matches(res) {
 				continue
 			}
 
-			// filter local ip address
-			address, err := GetRemoteIP(r)
-			if err != nil {
-				return http.StatusInternalServerError, err
-			}
-			if IsLocalIpAddress(address, localIpNets) {
-				continue
+			if ignorePrivateIP {
+				// filter local ip address
+				address, err := GetRemoteIP(r)
+				if err != nil {
+					return http.StatusInternalServerError, err
+				}
+				if IsLocalIpAddress(address, localIpNets) {
+					continue
+				}
 			}
 
 			sliceKeys := buildKeys(res, r)

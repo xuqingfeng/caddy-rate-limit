@@ -3,6 +3,7 @@
 
 [![Travis CI](https://img.shields.io/travis/xuqingfeng/caddy-rate-limit/master.svg?style=flat-square)](https://travis-ci.org/xuqingfeng/caddy-rate-limit)
 [![Go Report Card](https://goreportcard.com/badge/github.com/xuqingfeng/caddy-rate-limit?style=flat-square)](https://goreportcard.com/report/github.com/xuqingfeng/caddy-rate-limit)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/xuqingfeng/caddy-rate-limit)
 
 ### Syntax
 
@@ -34,6 +35,8 @@ ratelimit rate burst unit {
 
 - resources is a list of files/directories to apply `rate limit`, one per line
 
+**Note:** If you don't want to apply `rate limit` on some special resources, add `^` in front of the path.
+
 
 ### Examples
 
@@ -43,12 +46,13 @@ Limit clients to 2 requests per second (bursts of 3) to any resources in /r:
 ratelimit /r 2 3 second
 ```
 
-For the listed paths, limit clients to 2 requests per minute (bursts of 2):
+For the listed paths, limit clients to 2 requests per minute (bursts of 2) and always ignore `/dir/app.js`:
 
 ```
 ratelimit 2 2 minute {
     /foo.html
     /dir
+    ^/dir/app.js
 }
 ```
 

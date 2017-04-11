@@ -46,9 +46,9 @@ func TestRateLimitParse(t *testing.T) {
 		},
 		{
 			`ratelimit 2 2 second {
-                /resource0
-                /resource1
-            }`, false, []Rule{
+                             /resource0
+                             /resource1
+                        }`, false, []Rule{
 				{2, 2, []string{"/resource0", "/resource1"}, "second"},
 			},
 		},
