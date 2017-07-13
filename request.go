@@ -5,8 +5,8 @@ import (
 	"net/http"
 )
 
-// IsLocalIpAddress check whether an ip belongs to private network
-func IsLocalIpAddress(address string, localIpNets []*net.IPNet) bool {
+// IsWhitelistIpAddress check whether an ip is in whitelist
+func IsWhitelistIpAddress(address string, localIpNets []*net.IPNet) bool {
 
 	ip := net.ParseIP(address)
 	if ip != nil {
