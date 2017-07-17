@@ -12,6 +12,6 @@ ratelimit /i 2 3 infinite
 ratelimit ^/m/u 1 1 minute
 
 ratelimit 1 2 second {
-    whitelist 1.2.3.4/32
+    whitelist 127.0.0.1/32
     /static
 }

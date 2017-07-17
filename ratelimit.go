@@ -42,7 +42,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 
 	retryAfter := time.Duration(0)
 
-	// handle exception first
+	// handle exception and get whitelist IPNet first
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
 			if strings.HasPrefix(res, symbol) {
@@ -52,7 +52,6 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 				}
 			}
 		}
-		// get whitelist IPNet
 		for _, s := range rule.Whitelist {
 			_, ipNet, err := net.ParseCIDR(s)
 			if err == nil {
