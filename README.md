@@ -32,7 +32,7 @@ ratelimit rate burst unit {
 }
 ```
 
-- whitelist is the keyword for whitelisting your trusted ips, [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to implement `ratelimit`
+- whitelist is the keyword for whitelisting your trusted ips, [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to perform `rate limit`
 - resources is a list of files/directories to apply `rate limit`, one per line
 
 **Note:** If you don't want to apply `rate limit` on some special resources, add `^` in front of the path.
@@ -46,7 +46,7 @@ Limit clients to 2 requests per second (bursts of 3) to any resources in /r:
 ratelimit /r 2 3 second
 ```
 
-For the listed paths, don't implement `ratelimit` if requests come from 192.168.1.0/30(192.168.1.0 ~ 192.168.1.3), limit clients to 2 requests per minute (bursts of 2) and always ignore `/dir/app.js`:
+For the listed paths, don't perform `rate limit` if requests come from 192.168.1.0/30(192.168.1.0 ~ 192.168.1.3), limit clients to 2 requests per minute (bursts of 2) and always ignore `/dir/app.js`:
 
 ```
 ratelimit 2 2 minute {

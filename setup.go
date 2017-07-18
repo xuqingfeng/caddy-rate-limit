@@ -1,11 +1,11 @@
 package ratelimit
 
 import (
+	"net"
 	"strconv"
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
-	"net"
 )
 
 func init() {

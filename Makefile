@@ -15,3 +15,12 @@ race:
 
 benchmark:
 	go test -run=xxx -bench=.
+
+benchmark-mem:
+	go test -run=xxx -bench=. -benchmem
+
+benchmark-mem-pprof:
+	go test -run=xxx -bench=. -memprofile=mem.pprof
+
+benchmark-cpu-pprof:
+	go test -run=xxx -bench=. -cpuprofile=cpu.pprof
