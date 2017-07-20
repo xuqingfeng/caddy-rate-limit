@@ -34,7 +34,6 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 
 	for i, test := range tests {
 		test.keys = append(test.keys, strconv.Itoa(i))
-		//t.Logf("keys: %v", test.keys)
 		actual := cl.AllowN(test.keys, test.rule, test.qps)
 		retryAfter := cl.RetryAfter(test.keys)
 		if retryAfter < test.shouldRetryAfter {
@@ -48,7 +47,6 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 	// spawn multiple goroutines to test concurrent read/write in map
 	num := make([]int, 1000)
 	for range num {
-		//t.Logf("index: %v", i)
 		go func() {
 			for {
 				cl.AllowN(tests[0].keys, tests[0].rule, tests[0].qps)
