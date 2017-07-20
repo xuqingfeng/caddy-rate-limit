@@ -46,10 +46,11 @@ Limit clients to 2 requests per second (bursts of 3) to any resources in /r:
 ratelimit /r 2 3 second
 ```
 
-For the listed paths, don't perform `rate limit` if requests come from 192.168.1.0/30(192.168.1.0 ~ 192.168.1.3), limit clients to 2 requests per minute (bursts of 2) and always ignore `/dir/app.js`:
+For the listed paths, don't perform `rate limit` if requests come from **1.2.3.4** or **192.168.1.0/30(192.168.1.0 ~ 192.168.1.3)**, limit clients to 2 requests per minute (bursts of 2) and always ignore `/dir/app.js`:
 
 ```
 ratelimit 2 2 minute {
+    whitelist 1.2.3.4/32
     whitelist 192.168.1.0/30
     /foo.html
     /dir
@@ -61,7 +62,7 @@ ratelimit 2 2 minute {
 
 ```bash
 docker pull xuqingfeng/caddy-rate-limit
-docker run -d -p 2016:2016 --name ratelimit xuqingfeng/caddy-rate-limit
+docker run -d -p 2016:2016 -v `pwd`/Caddyfile:/go/src/github.com/xuqingfeng/caddy-rate-limit/Caddyfile --name ratelimit xuqingfeng/caddy-rate-limit
 ```
 
 ---
