@@ -19,40 +19,30 @@ type RateLimit struct {
 type Rule struct {
 	Rate      int64
 	Burst     int
+	Whitelist []string
 	Resources []string
 	Unit      string
 }
 
 const (
-	ignorePrivateIP = true
-	symbol          = "^"
+	symbol = "^"
 )
 
 var (
-	caddyLimiter *CaddyLimiter
-	localIpNets  []*net.IPNet
+	caddyLimiter    *CaddyLimiter
+	whitelistIpNets []*net.IPNet
 )
 
 func init() {
 
 	caddyLimiter = NewCaddyLimiter()
-	// https://en.wikipedia.org/wiki/Private_network
-	localCIDRs := []string{
-		"127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "::1/128", "fc00::/7",
-	}
-	for _, s := range localCIDRs {
-		_, ipNet, err := net.ParseCIDR(s)
-		if err == nil {
-			localIpNets = append(localIpNets, ipNet)
-		}
-	}
 }
 
 func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 
 	retryAfter := time.Duration(0)
 
-	// handle exception first
+	// handle exception and get whitelist IPNet first
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
 			if strings.HasPrefix(res, symbol) {
@@ -60,6 +50,12 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 				if httpserver.Path(r.URL.Path).Matches(res) {
 					return rl.Next.ServeHTTP(w, r)
 				}
+			}
+		}
+		for _, s := range rule.Whitelist {
+			_, ipNet, err := net.ParseCIDR(s)
+			if err == nil {
+				whitelistIpNets = append(whitelistIpNets, ipNet)
 			}
 		}
 	}
@@ -70,15 +66,13 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 				continue
 			}
 
-			if ignorePrivateIP {
-				// filter local ip address
-				address, err := GetRemoteIP(r)
-				if err != nil {
-					return http.StatusInternalServerError, err
-				}
-				if IsLocalIpAddress(address, localIpNets) {
-					continue
-				}
+			// filter whitelist ips
+			address, err := GetRemoteIP(r)
+			if err != nil {
+				return http.StatusInternalServerError, err
+			}
+			if IsWhitelistIpAddress(address, whitelistIpNets) {
+				continue
 			}
 
 			sliceKeys := buildKeys(res, r)

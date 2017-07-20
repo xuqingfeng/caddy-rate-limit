@@ -1,6 +1,7 @@
 package ratelimit
 
 import (
+	"net"
 	"strconv"
 
 	"github.com/mholt/caddy"
@@ -41,6 +42,7 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 		args := c.RemainingArgs()
 		switch len(args) {
 		case 3:
+			// config block
 			rule.Rate, err = strconv.ParseInt(args[0], 10, 64)
 			if err != nil {
 				return rules, err
@@ -50,13 +52,8 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 				return rules, err
 			}
 			rule.Unit = args[2]
-			for c.NextBlock() {
-				rule.Resources = append(rule.Resources, c.Val())
-				if c.NextArg() {
-					return rules, c.Errf("Expecting only one resource per line (extra '%s')", c.Val())
-				}
-			}
 		case 4:
+			// one line config
 			rule.Resources = append(rule.Resources, args[0])
 			rule.Rate, err = strconv.ParseInt(args[1], 10, 64)
 			if err != nil {
@@ -69,6 +66,31 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 			rule.Unit = args[3]
 		default:
 			return rules, c.ArgErr()
+		}
+
+		for c.NextBlock() {
+			val := c.Val()
+			args = c.RemainingArgs()
+			switch len(args) {
+			case 0:
+				// resource
+				rule.Resources = append(rule.Resources, val)
+			case 1:
+				// whitelist
+				if "whitelist" == val {
+					// check if CIDR is valid
+					_, _, err := net.ParseCIDR(args[0])
+					if err != nil {
+						return rules, err
+					} else {
+						rule.Whitelist = append(rule.Whitelist, args[0])
+					}
+				} else {
+					return rules, c.Errf("expecting whitelist, got %s", val)
+				}
+			default:
+				return rules, c.ArgErr()
+			}
 		}
 
 		rules = append(rules, rule)

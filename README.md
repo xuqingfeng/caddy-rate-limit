@@ -9,8 +9,6 @@
 
 **Excessive requests will be terminated with an error 429 (Too Many Requests)! And `X-RateLimit-RetryAfter` header will be returned.**
 
-**[Private IPs](https://en.wikipedia.org/wiki/Private_network) will be ignored.**
-
 For single resource:
 
 ```
@@ -29,10 +27,12 @@ For multiple resources:
 
 ```
 ratelimit rate burst unit {
+    whitelist CIDR
     resources
 }
 ```
 
+- whitelist is the keyword for whitelisting your trusted ips, [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to perform `rate limit`
 - resources is a list of files/directories to apply `rate limit`, one per line
 
 **Note:** If you don't want to apply `rate limit` on some special resources, add `^` in front of the path.
@@ -46,10 +46,12 @@ Limit clients to 2 requests per second (bursts of 3) to any resources in /r:
 ratelimit /r 2 3 second
 ```
 
-For the listed paths, limit clients to 2 requests per minute (bursts of 2) and always ignore `/dir/app.js`:
+For the listed paths, don't perform `rate limit` if requests come from **1.2.3.4** or **192.168.1.0/30(192.168.1.0 ~ 192.168.1.3)**, limit clients to 2 requests per minute (bursts of 2) and always ignore `/dir/app.js`:
 
 ```
 ratelimit 2 2 minute {
+    whitelist 1.2.3.4/32
+    whitelist 192.168.1.0/30
     /foo.html
     /dir
     ^/dir/app.js
@@ -60,7 +62,7 @@ ratelimit 2 2 minute {
 
 ```bash
 docker pull xuqingfeng/caddy-rate-limit
-docker run -d -p 2016:2016 --name ratelimit xuqingfeng/caddy-rate-limit
+docker run -d -p 2016:2016 -v `pwd`/Caddyfile:/go/src/github.com/xuqingfeng/caddy-rate-limit/Caddyfile --name ratelimit xuqingfeng/caddy-rate-limit
 ```
 
 ---

@@ -34,21 +34,19 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 
 	for i, test := range tests {
 		test.keys = append(test.keys, strconv.Itoa(i))
-		t.Logf("keys: %v", test.keys)
 		actual := cl.AllowN(test.keys, test.rule, test.qps)
 		retryAfter := cl.RetryAfter(test.keys)
 		if retryAfter < test.shouldRetryAfter {
-			t.Errorf("Test %d: shouldeRetryAfter %d, got %d", i, test.shouldRetryAfter, retryAfter)
+			t.Errorf("E! test %d: shouldeRetryAfter %d, got %d", i, test.shouldRetryAfter, retryAfter)
 		}
 		if actual != test.expected {
-			t.Errorf("Test %d: expected %t, got %t", i, test.expected, actual)
+			t.Errorf("E! test %d: expected %t, got %t", i, test.expected, actual)
 		}
 	}
 
 	// spawn multiple goroutines to test concurrent read/write in map
 	num := make([]int, 1000)
-	for i := range num {
-		t.Logf("index: %v", i)
+	for range num {
 		go func() {
 			for {
 				cl.AllowN(tests[0].keys, tests[0].rule, tests[0].qps)
@@ -64,7 +62,7 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 
 func BenchmarkSingleKey(b *testing.B) {
 
-	keys := []string{"209.95.60.145", "/"}
+	keys := []string{"127.0.0.1", "/"}
 	for n := 0; n < b.N; n++ {
 		benchmarkAllowNAndRetryAfter(keys)
 	}
@@ -73,13 +71,13 @@ func BenchmarkSingleKey(b *testing.B) {
 func BenchmarkRandomKey(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
-		keys := []string{"209.95.60.145", "/" + strconv.Itoa(n)}
+		keys := []string{"127.0.0.1", "/" + strconv.Itoa(n)}
 		benchmarkAllowNAndRetryAfter(keys)
 	}
 }
 
 func benchmarkAllowNAndRetryAfter(keys []string) {
 
-	cl.AllowN(keys, Rule{Rate: 2, Burst: 2, Unit: "second"}, 2)
+	cl.AllowN(keys, Rule{Rate: 2, Burst: 2, Unit: "second"}, 1)
 	cl.RetryAfter(keys)
 }

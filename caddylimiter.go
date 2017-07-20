@@ -31,7 +31,9 @@ func (cl *CaddyLimiter) Allow(keys []string, rule Rule) bool {
 func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 
 	keysJoined := strings.Join(keys, "|")
+
 	cl.Lock()
+
 	if _, found := cl.Keys[keysJoined]; !found {
 
 		switch rule.Unit {
@@ -46,6 +48,7 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 			cl.Keys[keysJoined] = rate.NewLimiter(rate.Inf, rule.Burst)
 		}
 	}
+
 	cl.Unlock()
 
 	return cl.Keys[keysJoined].AllowN(time.Now(), n)
@@ -56,13 +59,13 @@ func (cl *CaddyLimiter) RetryAfter(keys []string) time.Duration {
 
 	keysJoined := strings.Join(keys, "|")
 	reserve := cl.Keys[keysJoined].Reserve()
+	defer reserve.Cancel()
+
 	if reserve.OK() {
 		retryAfter := reserve.Delay()
-		reserve.Cancel()
 		return retryAfter
 	}
 
-	reserve.Cancel()
 	return rate.InfDuration
 }
 
