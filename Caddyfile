@@ -1,18 +1,20 @@
-:2016
+:2016 {
 
-root /go/src/github.com/xuqingfeng/caddy-rate-limit/tests/site
-browse /
-ext .html
-log stdout
-errors stderr
+    root /go/src/github.com/xuqingfeng/caddy-rate-limit/tests/site
+    browse /
+    ext .html
+    log stdout
+    errors stderr
 
-ratelimit /s 1 2 second
-ratelimit /m 2 3 minute
-ratelimit /i 2 3 infinite
-ratelimit ^/m/u 1 1 minute
+    ratelimit /s 1 2 second
+    ratelimit /m 2 3 minute
+    ratelimit /i 2 3 infinite
+    ratelimit ^/m/u 1 1 minute
 
-ratelimit 1 2 second {
-    whitelist 127.0.0.1/32
-    whitelist 1.2.3.4/32
-    /static
+    ratelimit 1 2 second {
+        whitelist 127.0.0.1/32
+        whitelist 10.10.2.15/32
+        /static
+    }
+
 }
