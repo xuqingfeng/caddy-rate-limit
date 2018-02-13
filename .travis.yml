@@ -11,4 +11,4 @@ os:
 install:
   - make deps
 script:
-  - make race
+  - make race-test
