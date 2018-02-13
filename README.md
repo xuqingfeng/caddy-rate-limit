@@ -65,13 +65,12 @@ ratelimit 2 2 minute {
 ### Docker
 
 ```bash
-docker pull xuqingfeng/caddy-rate-limit
 docker run -d -p 2016:2016 -v `pwd`/Caddyfile:/go/src/github.com/xuqingfeng/caddy-rate-limit/Caddyfile --name ratelimit xuqingfeng/caddy-rate-limit
 ```
 
 ---
 
-**Inspired By**
+**Inspired by**
 
 [http://nginx.org/en/docs/http/ngx_http_limit_req_module.html](http://nginx.org/en/docs/http/ngx_http_limit_req_module.html)
 

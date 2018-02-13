@@ -5,7 +5,7 @@ build: fmt
 	go build
 
 build-docker-image:
-	docker build -t xuqingfeng/caddy-rate-limit:$$(git describe --abbrev=0) . && docker build -t xuqingfeng/caddy-rate-limit:latest .
+	docker build -t xuqingfeng/caddy-rate-limit:$$(git describe --abbrev=0 --tags) . && docker build -t xuqingfeng/caddy-rate-limit:latest .
 
 fmt:
 	go fmt ./...
