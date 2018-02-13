@@ -20,7 +20,7 @@ ratelimit path rate burst unit
 - rate is the limited request in every time unit (r/s, r/m, r/h) (e.g. 1)
 
 - burst is the maximum burst size client can exceed; burst >= rate (e.g. 2)
- 
+
 - unit is the time interval (currently support: `second`, `minute`, `hour`)
 
 For multiple resources:
@@ -58,7 +58,11 @@ ratelimit 2 2 minute {
 }
 ```
 
-### Test
+### Download
+
+`curl https://getcaddy.com | bash -s personal http.ratelimit`
+
+### Docker
 
 ```bash
 docker pull xuqingfeng/caddy-rate-limit
