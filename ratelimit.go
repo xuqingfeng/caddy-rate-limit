@@ -78,8 +78,8 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 			sliceKeys := buildKeys(res, r)
 			for _, keys := range sliceKeys {
 				ret := caddyLimiter.Allow(keys, rule)
-				retryAfter = caddyLimiter.RetryAfter(keys)
 				if !ret {
+					retryAfter = caddyLimiter.RetryAfter(keys)
 					w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
 					return http.StatusTooManyRequests, nil
 				}

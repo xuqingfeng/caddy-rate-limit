@@ -1,16 +1,16 @@
 deps:
 	go get -v -d ./...
 
-build: format
+build: fmt
 	go build
 
 fmt:
 	go fmt ./...
 
-test:
+test: fmt
 	go test -v $$(go list ./... | grep -v /vendor/)
 
-race:
+race-test: fmt
 	go test -v -race $$(go list ./... | grep -v /vendor/)
 
 benchmark:
