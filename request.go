@@ -3,6 +3,7 @@ package ratelimit
 import (
 	"net"
 	"net/http"
+	"strings"
 )
 
 // IsWhitelistIPAddress check whether an ip is in whitelist
@@ -26,4 +27,17 @@ func GetRemoteIP(r *http.Request) (string, error) {
 
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	return host, err
+}
+
+// MatchMethod check whether the request method is in the methods list
+func MatchMethod(methods, method string) bool {
+
+	methods = strings.ToUpper(methods)
+	if methods == "*" {
+		return true
+	}
+	if strings.Contains(methods, method) {
+		return true
+	}
+	return false
 }

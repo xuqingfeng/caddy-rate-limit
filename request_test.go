@@ -57,7 +57,7 @@ func TestIsWhitelistIPAddress(t *testing.T) {
 
 	for i, test := range tests {
 		if ret := IsWhitelistIPAddress(test.input, testWhitelistIPNets); ret != test.expected {
-			t.Errorf("E! test %d expected %t, get %t", i, test.expected, ret)
+			t.Errorf("E! test %d expected %t, got %t", i, test.expected, ret)
 		}
 	}
 }
@@ -83,25 +83,57 @@ func TestGetRemoteIP(t *testing.T) {
 	for i, test := range tests {
 		req, err = http.NewRequest("GET", server.URL, nil)
 		if err != nil {
-			t.Fatalf("F! test %d errored: '%v'", i, err)
+			t.Fatalf("F! test %d error: %v", i, err)
 		}
 		for k, v := range test.input {
 			req.Header.Add(k, v)
 		}
 		resp, err = defaultClient.Do(req)
 		if err != nil {
-			t.Errorf("E! test %d errored: '%v'", i, err)
+			t.Errorf("E! test %d error: %v", i, err)
 		}
 		// bytes.NewBuffer https://stackoverflow.com/questions/37314715/reading-http-response-body-stream
 		buf := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
 		_, err := buf.ReadFrom(resp.Body)
 		if err != nil {
-			t.Errorf("E! test %d errored: '%v'", i, err)
+			t.Errorf("E! test %d error: %v", i, err)
 		}
 		ip := buf.Bytes()
 		if string(ip) != test.expected {
-			t.Errorf("E! test %d Expected %s, get %s", i, test.expected, ip)
+			t.Errorf("E! test %d expected %s, got %s", i, test.expected, ip)
 		}
 		resp.Body.Close()
+	}
+}
+
+func TestMatchMethod(t *testing.T) {
+
+	tests := []struct {
+		input       string
+		inputMethod string
+		expected    bool
+	}{
+		{
+			"get", "GET", true,
+		},
+		{
+			"get,post", "POST", true,
+		},
+		{
+			"put,patch", "DELETE", false,
+		},
+	}
+
+	var (
+		err error
+	)
+
+	for i, test := range tests {
+		if err != nil {
+			t.Fatalf("F! test %d error: %v", i, err)
+		}
+		if ret := MatchMethod(test.input, test.inputMethod); ret != test.expected {
+			t.Errorf("E! test %d expected %t, got %t", i, test.expected, ret)
+		}
 	}
 }

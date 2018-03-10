@@ -10,7 +10,7 @@ import (
 
 func TestSetup(t *testing.T) {
 
-	c := caddy.NewTestController("http", `ratelimit / 2 2 second`)
+	c := caddy.NewTestController("http", `ratelimit get / 2 2 second`)
 	err := setup(c)
 	if err != nil {
 		t.Errorf("E! expected no errors, got: %v", err)
@@ -29,28 +29,33 @@ func TestRateLimitParse(t *testing.T) {
 		expected  []Rule
 	}{
 		{
-			`ratelimit / 2 0 second`, false, []Rule{
-				{2, 0, []string{}, []string{"/"}, "second"},
+			`ratelimit get / 2 0 second`, false, []Rule{
+				{"get", 2, 0, "second", []string{}, []string{"/"}},
 			},
 		},
 		{
-			`ratelimit / 2 1 badUnit`, false, []Rule{
-				{2, 1, []string{}, []string{"/"}, "badUnit"},
+			`ratelimit post / 2 1 badUnit`, false, []Rule{
+				{"post", 2, 1, "badUnit", []string{}, []string{"/"}},
 			},
 		},
 		{
-			`ratelimit / notFloat64 0 second`, true, []Rule{},
+			`ratelimit * / notFloat64 0 second`, true, []Rule{},
 		},
 		{
-			`ratelimit / 2 0.1 second`, true, []Rule{},
+			`ratelimit * / 2 0.1 second`, true, []Rule{},
 		},
 		{
-			`ratelimit 2 2 second {
+			`ratelimit badMethods / 2 1 second`, false, []Rule{
+				{"badMethods", 2, 1, "second", []string{}, []string{"/"}},
+			}, // TODO: how to handle bad methods?
+		},
+		{
+			`ratelimit put,patch 2 2 second {
 							whitelist 127.0.0.1/32
                             /resource0
                             /resource1
                         }`, false, []Rule{
-				{2, 2, []string{"127.0.0.1/32"}, []string{"/resource0", "/resource1"}, "second"},
+				{"put,patch", 2, 2, "second", []string{"127.0.0.1/32"}, []string{"/resource0", "/resource1"}},
 			},
 		},
 		{
@@ -68,7 +73,7 @@ func TestRateLimitParse(t *testing.T) {
 		if err == nil && test.shouldErr {
 			t.Errorf("E! test %d didn't error, but it should have", i)
 		} else if err != nil && !test.shouldErr {
-			t.Errorf("E! test %d errored, but it shouldn't have; got '%v'", i, err)
+			t.Errorf("E! test %d error, but it shouldn't have; got %v", i, err)
 		}
 
 		if len(actual) != len(test.expected) {
@@ -79,16 +84,16 @@ func TestRateLimitParse(t *testing.T) {
 			actualRule := actual[j]
 
 			if actualRule.Rate != expectedRule.Rate {
-				t.Errorf("E! test %d, rule %d: expected rate '%d', got '%d'", i, j, expectedRule.Rate, actualRule.Rate)
+				t.Errorf("E! test %d, rule %d: expected rate %d, got %d", i, j, expectedRule.Rate, actualRule.Rate)
 			}
 			if actualRule.Burst != expectedRule.Burst {
-				t.Errorf("E! test %d, rule %d: expected burst '%d', got '%d'", i, j, expectedRule.Burst, actualRule.Burst)
+				t.Errorf("E! test %d, rule %d: expected burst %d, got %d", i, j, expectedRule.Burst, actualRule.Burst)
 			}
 			if actualRule.Unit != expectedRule.Unit {
-				t.Errorf("E! test %d, rule %d: expected unit '%s', got '%s'", i, j, expectedRule.Unit, actualRule.Unit)
+				t.Errorf("E! test %d, rule %d: expected unit %s, got %s", i, j, expectedRule.Unit, actualRule.Unit)
 			}
 			if !reflect.DeepEqual(actualRule.Resources, expectedRule.Resources) {
-				t.Errorf("E! test %d, rule %d: expected resource '%v', got '%v'", i, j, expectedRule.Resources, actualRule.Resources)
+				t.Errorf("E! test %d, rule %d: expected resource %v, got %v", i, j, expectedRule.Resources, actualRule.Resources)
 			}
 		}
 	}

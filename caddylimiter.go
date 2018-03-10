@@ -70,13 +70,14 @@ func (cl *CaddyLimiter) RetryAfter(keys []string) time.Duration {
 }
 
 // buildKeys combine client ip and resource
-func buildKeys(res string, r *http.Request) [][]string {
+func buildKeys(methods, res string, r *http.Request) [][]string {
 
+	// FIXME: shouldn't run GetRemoteIP here
 	remoteIP, _ := GetRemoteIP(r)
 	sliceKeys := make([][]string, 0)
 
 	if len(remoteIP) != 0 {
-		sliceKeys = append(sliceKeys, []string{remoteIP, res})
+		sliceKeys = append(sliceKeys, []string{remoteIP, methods, res})
 	}
 
 	return sliceKeys
