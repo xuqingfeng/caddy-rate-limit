@@ -5,12 +5,12 @@ import (
 	"net/http"
 )
 
-// IsWhitelistIpAddress check whether an ip is in whitelist
-func IsWhitelistIpAddress(address string, localIpNets []*net.IPNet) bool {
+// IsWhitelistIPAddress check whether an ip is in whitelist
+func IsWhitelistIPAddress(address string, localIPNets []*net.IPNet) bool {
 
 	ip := net.ParseIP(address)
 	if ip != nil {
-		for _, ipNet := range localIpNets {
+		for _, ipNet := range localIPNets {
 			if ipNet.Contains(ip) {
 				return true
 			}
@@ -21,7 +21,7 @@ func IsWhitelistIpAddress(address string, localIpNets []*net.IPNet) bool {
 }
 
 // GetRemoteIP returns the ip of requester
-// Don't care if the ip is real or not
+// Doesn't care if the ip is real or not
 func GetRemoteIP(r *http.Request) (string, error) {
 
 	host, _, err := net.SplitHostPort(r.RemoteAddr)

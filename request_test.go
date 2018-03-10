@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestIsWhitelistIpAddress(t *testing.T) {
+func TestIsWhitelistIPAddress(t *testing.T) {
 
 	tests := []struct {
 		input    string
@@ -47,16 +47,16 @@ func TestIsWhitelistIpAddress(t *testing.T) {
 		},
 	}
 	testWhitelist := []string{"127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "::1/128", "fc00::/7"}
-	var testWhitelistIpNets []*net.IPNet
+	var testWhitelistIPNets []*net.IPNet
 	for _, s := range testWhitelist {
 		_, ipNet, err := net.ParseCIDR(s)
 		if err == nil {
-			testWhitelistIpNets = append(testWhitelistIpNets, ipNet)
+			testWhitelistIPNets = append(testWhitelistIPNets, ipNet)
 		}
 	}
 
 	for i, test := range tests {
-		if ret := IsWhitelistIpAddress(test.input, testWhitelistIpNets); ret != test.expected {
+		if ret := IsWhitelistIPAddress(test.input, testWhitelistIPNets); ret != test.expected {
 			t.Errorf("E! test %d expected %t, get %t", i, test.expected, ret)
 		}
 	}

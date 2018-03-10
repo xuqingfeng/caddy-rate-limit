@@ -30,7 +30,7 @@ const (
 
 var (
 	caddyLimiter    *CaddyLimiter
-	whitelistIpNets []*net.IPNet
+	whitelistIPNets []*net.IPNet
 )
 
 func init() {
@@ -55,7 +55,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 		for _, s := range rule.Whitelist {
 			_, ipNet, err := net.ParseCIDR(s)
 			if err == nil {
-				whitelistIpNets = append(whitelistIpNets, ipNet)
+				whitelistIPNets = append(whitelistIPNets, ipNet)
 			}
 		}
 	}
@@ -71,7 +71,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 			if err != nil {
 				return http.StatusInternalServerError, err
 			}
-			if IsWhitelistIpAddress(address, whitelistIpNets) {
+			if IsWhitelistIPAddress(address, whitelistIPNets) {
 				continue
 			}
 
