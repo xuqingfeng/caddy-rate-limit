@@ -15,15 +15,15 @@ For single resource:
 ratelimit methods path rate burst unit
 ```
 
-- methods are the requests methods it tries to match (comma separately)
+- `methods` are the request methods it will match (comma separately)
 
-- path is the file or directory to apply `rate limit`
+- `path` is the file or directory to apply `rate limit`
 
-- rate is the limited request in every time unit (r/s, r/m, r/h) (e.g. 1)
+- `rate` is the limited request in every time unit (r/s, r/m, r/h) (e.g. 1)
 
-- burst is the maximum burst size client can exceed; burst >= rate (e.g. 2)
+- `burst` is the maximum burst size client can exceed; burst >= rate (e.g. 2)
 
-- unit is the time interval (currently support: `second`, `minute`, `hour`)
+- `unit` is the time interval (currently support: `second`, `minute`, `hour`)
 
 For multiple resources:
 
@@ -34,15 +34,15 @@ ratelimit methods rate burst unit {
 }
 ```
 
-- whitelist is the keyword for whitelist your trusted ips, [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to perform `rate limit` and it will apply to all rules.
-- resources is a list of files/directories to apply `rate limit`, one per line.
+- `whitelist` is the keyword for whitelist your trusted ips, [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to perform `rate limit` and it will apply to all rules.
+- `resources` is a list of files/directories to apply `rate limit`, one per line.
 
 **Note:** If you don't want to apply `rate limit` on some special resources, add `^` in front of the path.
 
 
 ### Examples
 
-Limit clients to 2 requests per second (bursts of 3) to any methods and any resources in /r:
+Limit clients to 2 requests per second (bursts of 3) to any methods and any resources under /r:
 
 ```
 ratelimit * /r 2 3 second
