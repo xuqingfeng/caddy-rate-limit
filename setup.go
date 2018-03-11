@@ -75,7 +75,7 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 			args = c.RemainingArgs()
 			switch len(args) {
 			case 0:
-				// resource
+				// resources
 				rule.Resources = append(rule.Resources, val)
 			case 1:
 				// whitelist

@@ -33,10 +33,7 @@ func GetRemoteIP(r *http.Request) (string, error) {
 func MatchMethod(methods, method string) bool {
 
 	methods = strings.ToUpper(methods)
-	if methods == "*" {
-		return true
-	}
-	if strings.Contains(methods, method) {
+	if methods == "*" || strings.Contains(methods, method) {
 		return true
 	}
 	return false

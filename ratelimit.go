@@ -39,9 +39,15 @@ func init() {
 	caddyLimiter = NewCaddyLimiter()
 }
 
+// ServeHTTP is the method handling every request
 func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 
 	retryAfter := time.Duration(0)
+	// get request ip address
+	ipAddress, err := GetRemoteIP(r)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
 
 	// TODO: move calculation block to pre setup(load config)
 
@@ -69,17 +75,12 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 				continue
 			}
 
-			// filter whitelist ips
-			address, err := GetRemoteIP(r)
-			if err != nil {
-				return http.StatusInternalServerError, err
-			}
-			// FIXME: whitelist shouldn't apply to all rules
-			if IsWhitelistIPAddress(address, whitelistIPNets) || !MatchMethod(rule.Methods, r.Method) {
+			// whitelist will apply to all rules
+			if IsWhitelistIPAddress(ipAddress, whitelistIPNets) || !MatchMethod(rule.Methods, r.Method) {
 				continue
 			}
 
-			sliceKeys := buildKeys(rule.Methods, res, r)
+			sliceKeys := buildKeys(ipAddress, rule.Methods, res, r)
 			for _, keys := range sliceKeys {
 				ret := caddyLimiter.Allow(keys, rule)
 				if !ret {
