@@ -34,8 +34,8 @@ ratelimit methods rate burst unit {
 }
 ```
 
-- `whitelist` is the keyword for whitelist your trusted ips, [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to perform `rate limit` and it will apply to all rules.
-- `resources` is a list of files/directories to apply `rate limit`, one per line.
+- `whitelist` is the keyword for whitelist your trusted ips, [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to perform `rate limit`. `whitelist` is a general rule, it won't target for specific resource.
+- `resources` is a list of files/directories to apply `rate limit`, one per line
 
 **Note:** If you don't want to apply `rate limit` on some special resources, add `^` in front of the path.
 
