@@ -37,7 +37,7 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 		actual := cl.AllowN(test.keys, test.rule, test.qps)
 		retryAfter := cl.RetryAfter(test.keys)
 		if retryAfter < test.shouldRetryAfter {
-			t.Errorf("E! test %d: shouldeRetryAfter %d, got %d", i, test.shouldRetryAfter, retryAfter)
+			t.Errorf("E! test %d: shouldRetryAfter %d, got %d", i, test.shouldRetryAfter, retryAfter)
 		}
 		if actual != test.expected {
 			t.Errorf("E! test %d: expected %t, got %t", i, test.expected, actual)

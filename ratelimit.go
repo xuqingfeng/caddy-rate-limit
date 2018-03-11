@@ -17,20 +17,21 @@ type RateLimit struct {
 
 // Rule is a configuration for ratelimit
 type Rule struct {
+	Methods   string
 	Rate      int64
 	Burst     int
+	Unit      string
 	Whitelist []string
 	Resources []string
-	Unit      string
 }
 
 const (
-	symbol = "^"
+	ignoreSymbol = "^"
 )
 
 var (
 	caddyLimiter    *CaddyLimiter
-	whitelistIpNets []*net.IPNet
+	whitelistIPNets []*net.IPNet
 )
 
 func init() {
@@ -38,15 +39,23 @@ func init() {
 	caddyLimiter = NewCaddyLimiter()
 }
 
+// ServeHTTP is the method handling every request
 func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 
 	retryAfter := time.Duration(0)
+	// get request ip address
+	ipAddress, err := GetRemoteIP(r)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	// TODO: move calculation block to pre setup(load config)
 
 	// handle exception and get whitelist IPNet first
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
-			if strings.HasPrefix(res, symbol) {
-				res = strings.TrimPrefix(res, symbol)
+			if strings.HasPrefix(res, ignoreSymbol) {
+				res = strings.TrimPrefix(res, ignoreSymbol)
 				if httpserver.Path(r.URL.Path).Matches(res) {
 					return rl.Next.ServeHTTP(w, r)
 				}
@@ -55,7 +64,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 		for _, s := range rule.Whitelist {
 			_, ipNet, err := net.ParseCIDR(s)
 			if err == nil {
-				whitelistIpNets = append(whitelistIpNets, ipNet)
+				whitelistIPNets = append(whitelistIPNets, ipNet)
 			}
 		}
 	}
@@ -66,16 +75,12 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 				continue
 			}
 
-			// filter whitelist ips
-			address, err := GetRemoteIP(r)
-			if err != nil {
-				return http.StatusInternalServerError, err
-			}
-			if IsWhitelistIpAddress(address, whitelistIpNets) {
+			// whitelist will apply to all rules
+			if IsWhitelistIPAddress(ipAddress, whitelistIPNets) || !MatchMethod(rule.Methods, r.Method) {
 				continue
 			}
 
-			sliceKeys := buildKeys(res, r)
+			sliceKeys := buildKeys(ipAddress, rule.Methods, res, r)
 			for _, keys := range sliceKeys {
 				ret := caddyLimiter.Allow(keys, rule)
 				if !ret {

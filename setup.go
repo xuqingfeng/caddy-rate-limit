@@ -41,20 +41,9 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 
 		args := c.RemainingArgs()
 		switch len(args) {
-		case 3:
-			// config block
-			rule.Rate, err = strconv.ParseInt(args[0], 10, 64)
-			if err != nil {
-				return rules, err
-			}
-			rule.Burst, err = strconv.Atoi(args[1])
-			if err != nil {
-				return rules, err
-			}
-			rule.Unit = args[2]
 		case 4:
-			// one line config
-			rule.Resources = append(rule.Resources, args[0])
+			// config block
+			rule.Methods = args[0]
 			rule.Rate, err = strconv.ParseInt(args[1], 10, 64)
 			if err != nil {
 				return rules, err
@@ -64,6 +53,19 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 				return rules, err
 			}
 			rule.Unit = args[3]
+		case 5:
+			// one line config
+			rule.Methods = args[0]
+			rule.Resources = append(rule.Resources, args[1])
+			rule.Rate, err = strconv.ParseInt(args[2], 10, 64)
+			if err != nil {
+				return rules, err
+			}
+			rule.Burst, err = strconv.Atoi(args[3])
+			if err != nil {
+				return rules, err
+			}
+			rule.Unit = args[4]
 		default:
 			return rules, c.ArgErr()
 		}
@@ -73,7 +75,7 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 			args = c.RemainingArgs()
 			switch len(args) {
 			case 0:
-				// resource
+				// resources
 				rule.Resources = append(rule.Resources, val)
 			case 1:
 				// whitelist
@@ -82,9 +84,8 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 					_, _, err := net.ParseCIDR(args[0])
 					if err != nil {
 						return rules, err
-					} else {
-						rule.Whitelist = append(rule.Whitelist, args[0])
 					}
+					rule.Whitelist = append(rule.Whitelist, args[0])
 				} else {
 					return rules, c.Errf("expecting whitelist, got %s", val)
 				}
