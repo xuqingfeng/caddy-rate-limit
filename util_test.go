@@ -74,7 +74,6 @@ func TestGetRemoteIP(t *testing.T) {
 		},
 	}
 
-	defaultClient := &http.Client{}
 	var (
 		req  *http.Request
 		resp *http.Response
@@ -88,7 +87,7 @@ func TestGetRemoteIP(t *testing.T) {
 		for k, v := range test.input {
 			req.Header.Add(k, v)
 		}
-		resp, err = defaultClient.Do(req)
+		resp, err = http.DefaultClient.Do(req)
 		if err != nil {
 			t.Errorf("E! test %d error: %v", i, err)
 		}
