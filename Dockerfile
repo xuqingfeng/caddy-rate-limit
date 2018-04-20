@@ -1,4 +1,6 @@
-FROM golang:1.9
+FROM golang:1.10-alpine
+
+RUN apk add --no-cache git
 
 RUN git clone https://github.com/xuqingfeng/caddy.git /go/src/github.com/mholt/caddy
 
