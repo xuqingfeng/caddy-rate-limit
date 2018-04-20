@@ -1,6 +1,7 @@
 package ratelimit
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -63,16 +64,24 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 func BenchmarkSingleKey(b *testing.B) {
 
 	keys := []string{"127.0.0.1", "get", "/"}
-	for n := 0; n < b.N; n++ {
-		benchmarkAllowNAndRetryAfter(keys)
+	for i := 1; i <= 8; i *= 2 {
+		b.Run(fmt.Sprintf("%d", i), func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				benchmarkAllowNAndRetryAfter(keys)
+			}
+		})
 	}
 }
 
 func BenchmarkRandomKey(b *testing.B) {
 
-	for n := 0; n < b.N; n++ {
-		keys := []string{"127.0.0.1", "get", "/" + strconv.Itoa(n)}
-		benchmarkAllowNAndRetryAfter(keys)
+	for i := 1; i <= 8; i *= 2 {
+		b.Run(fmt.Sprintf("%d", i), func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				keys := []string{"127.0.0.1", "get", "/" + strconv.Itoa(i) + "-" + strconv.Itoa(n)}
+				benchmarkAllowNAndRetryAfter(keys)
+			}
+		})
 	}
 }
 
