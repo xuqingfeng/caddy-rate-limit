@@ -8,6 +8,10 @@ import (
 	"github.com/mholt/caddy/caddyhttp/httpserver"
 )
 
+var (
+	whitelistIPNets []*net.IPNet
+)
+
 func init() {
 
 	caddy.RegisterPlugin("ratelimit", caddy.Plugin{
@@ -23,6 +27,16 @@ func setup(c *caddy.Controller) error {
 	rules, err := rateLimitParse(c)
 	if err != nil {
 		return err
+	}
+
+	// calculate whitelist IPNet in setup
+	for _, rule := range rules {
+		for _, s := range rule.Whitelist {
+			_, ipNet, err := net.ParseCIDR(s)
+			if err == nil {
+				whitelistIPNets = append(whitelistIPNets, ipNet)
+			}
+		}
 	}
 
 	rateLimit := RateLimit{Rules: rules}

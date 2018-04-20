@@ -19,16 +19,16 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 		expected         bool
 	}{
 		{
-			[]string{"127.0.0.1", "/"}, Rule{Rate: 2, Burst: 2, Unit: "second"}, 2, 0, false, true,
+			[]string{"127.0.0.1", "get", "/"}, Rule{Methods: "get", Rate: 2, Burst: 2, Unit: "second"}, 2, 0, false, true,
 		},
 		{
-			[]string{"127.0.0.1", "/"}, Rule{Rate: 1, Burst: 2, Unit: "minute"}, 2, 30 * time.Second, false, true,
+			[]string{"127.0.0.1", "get,post", "/"}, Rule{Methods: "get,post", Rate: 1, Burst: 2, Unit: "minute"}, 2, 30 * time.Second, false, true,
 		},
 		{
-			[]string{"127.0.0.1", "/"}, Rule{Rate: 1, Burst: 0, Unit: "hour"}, 1, rate.InfDuration, false, false,
+			[]string{"127.0.0.1", "*", "/"}, Rule{Methods: "*", Rate: 1, Burst: 0, Unit: "hour"}, 1, rate.InfDuration, false, false,
 		},
 		{
-			[]string{"127.0.0.1", "/"}, Rule{Rate: 0, Burst: 0}, 2, 0, false, true,
+			[]string{"127.0.0.1", "", "/"}, Rule{Methods: "", Rate: 0, Burst: 0}, 2, 0, false, true,
 		},
 	}
 
@@ -62,7 +62,7 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 
 func BenchmarkSingleKey(b *testing.B) {
 
-	keys := []string{"127.0.0.1", "/"}
+	keys := []string{"127.0.0.1", "get", "/"}
 	for n := 0; n < b.N; n++ {
 		benchmarkAllowNAndRetryAfter(keys)
 	}
@@ -71,13 +71,13 @@ func BenchmarkSingleKey(b *testing.B) {
 func BenchmarkRandomKey(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
-		keys := []string{"127.0.0.1", "/" + strconv.Itoa(n)}
+		keys := []string{"127.0.0.1", "get", "/" + strconv.Itoa(n)}
 		benchmarkAllowNAndRetryAfter(keys)
 	}
 }
 
 func benchmarkAllowNAndRetryAfter(keys []string) {
 
-	cl.AllowN(keys, Rule{Rate: 2, Burst: 2, Unit: "second"}, 1)
+	cl.AllowN(keys, Rule{Methods: "get", Rate: 2, Burst: 2, Unit: "second"}, 1)
 	cl.RetryAfter(keys)
 }
