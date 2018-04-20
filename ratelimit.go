@@ -47,20 +47,17 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 		return http.StatusInternalServerError, err
 	}
 
-	// handle exception first
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
+
+			// handle exception first
 			if strings.HasPrefix(res, ignoreSymbol) {
 				res = strings.TrimPrefix(res, ignoreSymbol)
 				if httpserver.Path(r.URL.Path).Matches(res) {
 					return rl.Next.ServeHTTP(w, r)
 				}
 			}
-		}
-	}
 
-	for _, rule := range rl.Rules {
-		for _, res := range rule.Resources {
 			if !httpserver.Path(r.URL.Path).Matches(res) {
 				continue
 			}

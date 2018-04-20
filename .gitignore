@@ -1,5 +1,6 @@
 .DS_Store
-.idea
 *.test
 *.pprof
 *.svg
+
+caddy
