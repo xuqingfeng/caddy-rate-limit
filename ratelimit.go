@@ -1,7 +1,6 @@
 package ratelimit
 
 import (
-	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -30,8 +29,7 @@ const (
 )
 
 var (
-	caddyLimiter    *CaddyLimiter
-	whitelistIPNets []*net.IPNet
+	caddyLimiter *CaddyLimiter
 )
 
 func init() {
@@ -49,9 +47,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 		return http.StatusInternalServerError, err
 	}
 
-	// TODO: move calculation block to pre setup(load config)
-
-	// handle exception and get whitelist IPNet first
+	// handle exception first
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
 			if strings.HasPrefix(res, ignoreSymbol) {
@@ -59,12 +55,6 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 				if httpserver.Path(r.URL.Path).Matches(res) {
 					return rl.Next.ServeHTTP(w, r)
 				}
-			}
-		}
-		for _, s := range rule.Whitelist {
-			_, ipNet, err := net.ParseCIDR(s)
-			if err == nil {
-				whitelistIPNets = append(whitelistIPNets, ipNet)
 			}
 		}
 	}
