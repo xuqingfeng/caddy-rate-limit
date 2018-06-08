@@ -10,6 +10,8 @@
     ratelimit get,post /m 2 3 minute
     ratelimit delete /i 2 3 infinite
     ratelimit get ^/m/u 1 1 minute
+    ratelimit * /d 10 20 day
+    ratelimit * /w 100 200 week
 
     ratelimit get 1 2 second {
         whitelist 127.0.0.1/32

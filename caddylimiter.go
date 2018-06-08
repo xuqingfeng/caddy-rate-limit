@@ -43,6 +43,10 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(time.Minute.Seconds()), rule.Burst)
 		case "hour":
 			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(time.Hour.Seconds()), rule.Burst)
+		case "day":
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(24*time.Hour.Seconds()), rule.Burst)
+		case "week":
+			cl.Keys[keysJoined] = rate.NewLimiter(rate.Limit(rule.Rate)/rate.Limit(7*24*time.Hour.Seconds()), rule.Burst)
 		default:
 			// Infinite
 			cl.Keys[keysJoined] = rate.NewLimiter(rate.Inf, rule.Burst)
