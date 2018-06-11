@@ -48,7 +48,7 @@ Limit clients to 2 requests per second (bursts of 3) to any methods and any reso
 ratelimit * /r 2 3 second
 ```
 
-Don't perform `rate limit` if requests come from **1.2.3.4** or **192.168.1.0/30(192.168.1.0 ~ 192.168.1.3)**, for the listed paths, limit clients to 2 requests per minute (bursts of 2) if the request method is **GET** or **POST** and always ignore `/dir/app.js`:
+Don't perform `rate limit` if requests come from **1.2.3.4** or **192.168.1.0/30(192.168.1.0 ~ 192.168.1.3)**, for the listed paths, limit clients to 2 requests per minute (bursts of 2) if the request method is **GET** or **POST** and always ignore `/dist/app.js`:
 
 ```
 ratelimit get,post 2 2 minute {
@@ -56,7 +56,7 @@ ratelimit get,post 2 2 minute {
     whitelist 192.168.1.0/30
     /foo.html
     /api
-    ^/dir/app.js
+    ^/dist/app.js
 }
 ```
 
