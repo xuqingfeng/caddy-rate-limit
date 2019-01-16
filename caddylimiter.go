@@ -53,9 +53,11 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 		}
 	}
 
+	curLimiter := cl.Keys[keysJoined]
+
 	cl.Unlock()
 
-	return cl.Keys[keysJoined].AllowN(time.Now(), n)
+	return curLimiter.AllowN(time.Now(), n)
 }
 
 // RetryAfter return a helper message for client
