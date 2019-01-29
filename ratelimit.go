@@ -105,7 +105,9 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 		}
 	}
 
-	// special case for limiting by status code
+	/*
+		special case for limiting by response status code
+	*/
 	nextResponseStatus, err = rl.Next.ServeHTTP(w, r)
 
 	for _, rule := range rl.Rules {

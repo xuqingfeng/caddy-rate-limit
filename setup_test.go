@@ -47,7 +47,7 @@ func TestRateLimitParse(t *testing.T) {
 		{
 			`ratelimit badMethods / 2 1 second`, false, []Rule{
 				{"badMethods", 2, 1, "second", []string{}, "403", []string{"/"}},
-			}, // TODO: how to handle bad methods?
+			},
 		},
 		{
 			`ratelimit put,patch 2 2 second {
