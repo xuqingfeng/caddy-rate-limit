@@ -92,7 +92,6 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 				// resources
 				rule.Resources = append(rule.Resources, val)
 			case 1:
-				// whitelist
 				if "whitelist" == val {
 					// check if CIDR is valid
 					_, _, err := net.ParseCIDR(args[0])
@@ -100,6 +99,9 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 						return rules, err
 					}
 					rule.Whitelist = append(rule.Whitelist, args[0])
+				} else if "status" == val {
+					// TODO: check status code is valid
+					rule.Status = args[0]
 				} else {
 					return rules, c.Errf("expecting whitelist, got %s", val)
 				}

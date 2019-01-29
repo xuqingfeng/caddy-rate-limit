@@ -38,3 +38,13 @@ func MatchMethod(methods, method string) bool {
 	}
 	return false
 }
+
+// MatchStatus check whether the upstream response status code is  in the status list
+func MatchStatus(status, s string) bool {
+
+	if strings.Contains(status, s) {
+		return true
+	}
+
+	return false
+}

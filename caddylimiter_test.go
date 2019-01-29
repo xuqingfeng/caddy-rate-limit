@@ -20,7 +20,7 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 		expected         bool
 	}{
 		{
-			[]string{"127.0.0.1", "get", "/"}, Rule{Methods: "get", Rate: 2, Burst: 2, Unit: "second"}, 2, 0, false, true,
+			[]string{"127.0.0.1", "get", "/"}, Rule{Methods: "get", Status: "200", Rate: 2, Burst: 2, Unit: "second"}, 2, 0, false, true,
 		},
 		{
 			[]string{"127.0.0.1", "get,post", "/"}, Rule{Methods: "get,post", Rate: 1, Burst: 2, Unit: "minute"}, 2, 30 * time.Second, false, true,
