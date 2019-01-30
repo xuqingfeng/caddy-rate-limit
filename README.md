@@ -30,11 +30,13 @@ For multiple resources:
 ```
 ratelimit methods rate burst unit {
     whitelist CIDR
+    status 403,503
     resources
 }
 ```
 
 - `whitelist` is the keyword for whitelist your trusted ips, [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to perform `rate limit`. `whitelist` is a general rule, it won't target for specific resource.
+- `status` are the response status code it will match (comma separately)
 - `resources` is a list of files/directories to apply `rate limit`, one per line
 
 **Note:** If you don't want to apply `rate limit` on some special resources, add `^` in front of the path.
@@ -54,6 +56,7 @@ Don't perform `rate limit` if requests come from **1.2.3.4** or **192.168.1.0/30
 ratelimit get,post 2 2 minute {
     whitelist 1.2.3.4/32
     whitelist 192.168.1.0/30
+    status *
     /foo.html
     /api
     ^/dist/app.js
