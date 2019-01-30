@@ -14,7 +14,7 @@
     ratelimit * /day 10 20 day
     ratelimit * /week 100 200 week
 
-    ratelimit get 1 2 second {
+    ratelimit get 1 2 minute {
         whitelist 127.0.0.1/32
         whitelist 10.10.2.15/32
         status 404

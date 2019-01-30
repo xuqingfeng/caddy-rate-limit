@@ -78,13 +78,17 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 			*/
 			sliceKeysOnlyWithIP := buildKeysOnlyWithIP(ipAddress)
 			for _, keys := range sliceKeysOnlyWithIP {
-				ret := caddyLimiter.Allow(keys, rule)
-				if !ret {
-					// fmt.Printf("limiting in 1 \n")
-					// fmt.Printf("applied rule: %v\n", rule)
-					retryAfter = caddyLimiter.RetryAfter(keys)
-					w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
-					return http.StatusTooManyRequests, err
+				keysJoined := strings.Join(keys, "|")
+				if _, found := caddyLimiter.Keys[keysJoined]; found {
+					ret := caddyLimiter.Allow(keys, rule)
+					if !ret {
+						// fmt.Printf("limiting in 1 \n")
+						// fmt.Printf("applied keys: %v\n", keysJoined)
+						// fmt.Printf("applied rule: %v\n", rule)
+						retryAfter = caddyLimiter.RetryAfter(keys)
+						w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
+						return http.StatusTooManyRequests, err
+					}
 				}
 			}
 
@@ -113,7 +117,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 	for _, rule := range rl.Rules {
 
 		// handle response status code mismatch
-		if !MatchStatus(rule.Status, strconv.Itoa(nextResponseStatus)) {
+		if len(rule.Status) == 0 || rule.Status == "*" || !MatchStatus(rule.Status, strconv.Itoa(nextResponseStatus)) {
 			continue
 		}
 		for _, res := range rule.Resources {
@@ -140,7 +144,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 			for _, keys := range sliceKeys {
 				// consume one token if status code matches
 				// fmt.Printf("reserve in rule: %v", rule)
-				caddyLimiter.Reserve(keys)
+				caddyLimiter.Allow(keys, rule)
 			}
 		}
 	}
