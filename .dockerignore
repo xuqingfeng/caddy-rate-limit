@@ -1,2 +1,6 @@
 .git
+*.test
+*.pprof
+*.svg
+
 caddy
