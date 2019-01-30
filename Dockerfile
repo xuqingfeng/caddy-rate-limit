@@ -1,16 +1,16 @@
-FROM golang:1.10-alpine
+FROM golang:1.11-alpine
 
-RUN apk add --no-cache git
-
-RUN git clone https://github.com/xuqingfeng/caddy.git /go/src/github.com/mholt/caddy
-
-RUN go get github.com/caddyserver/builds
+RUN apk add --update-cache --no-cache git && \
+    go get -v github.com/mholt/caddy && \
+    go get -v github.com/caddyserver/builds && \
+    go get -v golang.org/x/time/rate
 
 WORKDIR /go/src/github.com/xuqingfeng/caddy-rate-limit
 
 COPY . .
 
-RUN cd /go/src/github.com/mholt/caddy/caddy && \
+RUN ./insert-plugin.sh && \
+    cd /go/src/github.com/mholt/caddy/caddy && \
     go run build.go && \
     cp caddy /go/src/github.com/xuqingfeng/caddy-rate-limit/caddy
 

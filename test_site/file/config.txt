@@ -1,0 +1,4 @@
+ratelimit get 1 2 second {
+    status 404
+    /file
+}

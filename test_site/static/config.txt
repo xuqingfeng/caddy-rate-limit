@@ -1,5 +1,0 @@
-ratelimit 1 2 second {
-    whitelist 127.0.0.1/32
-    whitelist 10.10.2.15/32
-    /static
-}

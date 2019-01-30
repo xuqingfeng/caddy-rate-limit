@@ -112,6 +112,7 @@ func TestMatchMethod(t *testing.T) {
 		inputMethod string
 		expected    bool
 	}{
+		{"*", "GET", true},
 		{
 			"get", "GET", true,
 		},
@@ -132,6 +133,33 @@ func TestMatchMethod(t *testing.T) {
 			t.Fatalf("F! test %d error: %v", i, err)
 		}
 		if ret := MatchMethod(test.input, test.inputMethod); ret != test.expected {
+			t.Errorf("E! test %d expected %t, got %t", i, test.expected, ret)
+		}
+	}
+}
+
+func TestMatchStatus(t *testing.T) {
+
+	tests := []struct {
+		input       string
+		inputStatus string
+		expected    bool
+	}{
+		{"", "200", false},
+		{"*", "200", false},
+		{"200,404", "404", true},
+	}
+
+	var (
+		err error
+	)
+
+	for i, test := range tests {
+		if err != nil {
+			t.Fatalf("F! test %d error: %v", i, err)
+		}
+
+		if ret := MatchStatus(test.input, test.inputStatus); ret != test.expected {
 			t.Errorf("E! test %d expected %t, got %t", i, test.expected, ret)
 		}
 	}

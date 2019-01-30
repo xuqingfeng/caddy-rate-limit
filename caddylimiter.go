@@ -1,7 +1,6 @@
 package ratelimit
 
 import (
-	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -75,13 +74,32 @@ func (cl *CaddyLimiter) RetryAfter(keys []string) time.Duration {
 	return rate.InfDuration
 }
 
-// buildKeys combine client ip, request methods and resource
-func buildKeys(ipAddress, methods, res string, r *http.Request) [][]string {
+// Reserve will consume 1 token from `token bucket`
+func (cl *CaddyLimiter) Reserve(keys []string) bool {
+
+	keysJoined := strings.Join(keys, "|")
+	r := cl.Keys[keysJoined].Reserve()
+	return r.OK()
+}
+
+// buildKeys combine client ip, methods, status code and resource
+func buildKeys(ipAddress, methods, status, res string) [][]string {
 
 	sliceKeys := make([][]string, 0)
 
 	if len(ipAddress) != 0 {
-		sliceKeys = append(sliceKeys, []string{ipAddress, methods, res})
+		sliceKeys = append(sliceKeys, []string{ipAddress, methods, status, res})
+	}
+
+	return sliceKeys
+}
+
+// buildKeysOnlyWithIP only use client ip as keys
+func buildKeysOnlyWithIP(ipAddress string) [][]string {
+	sliceKeys := make([][]string, 0)
+
+	if len(ipAddress) != 0 {
+		sliceKeys = append(sliceKeys, []string{ipAddress})
 	}
 
 	return sliceKeys

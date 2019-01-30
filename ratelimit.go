@@ -2,6 +2,7 @@ package ratelimit
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -21,6 +22,7 @@ type Rule struct {
 	Burst     int
 	Unit      string
 	Whitelist []string
+	Status    string
 	Resources []string
 }
 
@@ -38,7 +40,7 @@ func init() {
 }
 
 // ServeHTTP is the method handling every request
-func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextResponseStatus int, err error) {
 
 	retryAfter := time.Duration(0)
 	// get request ip address
@@ -50,7 +52,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
 
-			// handle exception first
+			// handle `ignore`
 			if strings.HasPrefix(res, ignoreSymbol) {
 				res = strings.TrimPrefix(res, ignoreSymbol)
 				if httpserver.Path(r.URL.Path).Matches(res) {
@@ -58,26 +60,94 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, erro
 				}
 			}
 
+			// handle path mismatch
 			if !httpserver.Path(r.URL.Path).Matches(res) {
 				continue
 			}
 
-			// whitelist will apply to all rules
+			// handle whitelist ip & method mismatch
 			if IsWhitelistIPAddress(ipAddress, whitelistIPNets) || !MatchMethod(rule.Methods, r.Method) {
 				continue
 			}
 
-			sliceKeys := buildKeys(ipAddress, rule.Methods, res, r)
-			for _, keys := range sliceKeys {
-				ret := caddyLimiter.Allow(keys, rule)
-				if !ret {
-					retryAfter = caddyLimiter.RetryAfter(keys)
-					w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
-					return http.StatusTooManyRequests, nil
+			/*
+				check if this ip has already exceeded quota
+				if so, reject all the subsequent requests
+
+				note: this won't block resources outside of the plugin's config
+			*/
+			sliceKeysOnlyWithIP := buildKeysOnlyWithIP(ipAddress)
+			for _, keys := range sliceKeysOnlyWithIP {
+				keysJoined := strings.Join(keys, "|")
+				if _, found := caddyLimiter.Keys[keysJoined]; found {
+					ret := caddyLimiter.Allow(keys, rule)
+					if !ret {
+						// fmt.Printf("limiting in 1 \n")
+						// fmt.Printf("applied keys: %v\n", keysJoined)
+						// fmt.Printf("applied rule: %v\n", rule)
+						retryAfter = caddyLimiter.RetryAfter(keys)
+						w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
+						return http.StatusTooManyRequests, err
+					}
+				}
+			}
+
+			// check limit
+			if len(rule.Status) == 0 || rule.Status == "*" {
+				sliceKeys := buildKeys(ipAddress, rule.Methods, rule.Status, res)
+				for _, keys := range sliceKeys {
+					ret := caddyLimiter.Allow(keys, rule)
+					if !ret {
+						// fmt.Printf("limiting in 2 \n")
+						// fmt.Printf("applied rule: %v\n", rule)
+						retryAfter = caddyLimiter.RetryAfter(keys)
+						w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
+						return http.StatusTooManyRequests, err
+					}
 				}
 			}
 		}
 	}
 
-	return rl.Next.ServeHTTP(w, r)
+	/*
+		special case for limiting by response status code
+	*/
+	nextResponseStatus, err = rl.Next.ServeHTTP(w, r)
+
+	for _, rule := range rl.Rules {
+
+		// handle response status code mismatch
+		if len(rule.Status) == 0 || rule.Status == "*" || !MatchStatus(rule.Status, strconv.Itoa(nextResponseStatus)) {
+			continue
+		}
+		for _, res := range rule.Resources {
+
+			// handle `ignore`
+			if strings.HasPrefix(res, ignoreSymbol) {
+				res = strings.TrimPrefix(res, ignoreSymbol)
+				if httpserver.Path(r.URL.Path).Matches(res) {
+					return nextResponseStatus, err
+				}
+			}
+
+			// handle path mismatch
+			if !httpserver.Path(r.URL.Path).Matches(res) {
+				continue
+			}
+
+			// handle whitelist ip & method mismatch
+			if IsWhitelistIPAddress(ipAddress, whitelistIPNets) || !MatchMethod(rule.Methods, r.Method) {
+				continue
+			}
+
+			sliceKeys := buildKeysOnlyWithIP(ipAddress)
+			for _, keys := range sliceKeys {
+				// consume one token if status code matches
+				// fmt.Printf("reserve in rule: %v", rule)
+				caddyLimiter.Allow(keys, rule)
+			}
+		}
+	}
+
+	return nextResponseStatus, err
 }
