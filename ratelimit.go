@@ -82,9 +82,6 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 				if _, found := caddyLimiter.Keys[keysJoined]; found {
 					ret := caddyLimiter.Allow(keys, rule)
 					if !ret {
-						// fmt.Printf("limiting in 1 \n")
-						// fmt.Printf("applied keys: %v\n", keysJoined)
-						// fmt.Printf("applied rule: %v\n", rule)
 						retryAfter = caddyLimiter.RetryAfter(keys)
 						w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
 						return http.StatusTooManyRequests, err
@@ -98,8 +95,6 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 				for _, keys := range sliceKeys {
 					ret := caddyLimiter.Allow(keys, rule)
 					if !ret {
-						// fmt.Printf("limiting in 2 \n")
-						// fmt.Printf("applied rule: %v\n", rule)
 						retryAfter = caddyLimiter.RetryAfter(keys)
 						w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
 						return http.StatusTooManyRequests, err
@@ -143,7 +138,6 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 			sliceKeys := buildKeysOnlyWithIP(ipAddress)
 			for _, keys := range sliceKeys {
 				// consume one token if status code matches
-				// fmt.Printf("reserve in rule: %v", rule)
 				caddyLimiter.Allow(keys, rule)
 			}
 		}

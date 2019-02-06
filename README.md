@@ -36,7 +36,7 @@ ratelimit methods rate burst unit {
 ```
 
 - `whitelist` is the keyword for whitelist your trusted ips, [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to perform `rate limit`. `whitelist` is a general rule, it won't target for specific resource.
-- `status` are the response status code it will match (comma separately).
+- `status` is the keyword for matching the response status code (comma separately).
 If this rule is triggered, all subsequent requests from that client will be blocked regardless of which status code is returned or which resource is requested.
 **Note:** this won't block resources not defined in `ratelimit`'s config.
 - `resources` is a list of files/directories to apply `rate limit`, one per line
