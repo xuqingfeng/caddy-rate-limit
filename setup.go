@@ -106,7 +106,7 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 					// TODO: check status code is valid
 					rule.Status = args[0]
 				} else {
-					return rules, c.Errf("expecting whitelist, got %s", val)
+					return rules, c.Errf("expecting whitelist or status, got %s", val)
 				}
 			default:
 				return rules, c.ArgErr()
