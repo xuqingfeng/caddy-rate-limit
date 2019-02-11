@@ -3,6 +3,7 @@ package ratelimit
 import (
 	"net"
 	"strconv"
+	"strings"
 
 	"github.com/mholt/caddy"
 	"github.com/mholt/caddy/caddyhttp/httpserver"
@@ -94,11 +95,13 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 			case 1:
 				if "whitelist" == val {
 					// check if CIDR is valid
-					_, _, err := net.ParseCIDR(args[0])
-					if err != nil {
-						return rules, err
+					for _, v := range strings.Split(args[0], ",") {
+						_, _, err := net.ParseCIDR(v)
+						if err != nil {
+							return rules, err
+						}
+						rule.Whitelist = append(rule.Whitelist, v)
 					}
-					rule.Whitelist = append(rule.Whitelist, args[0])
 				} else if "status" == val {
 					// TODO: check status code is valid
 					rule.Status = args[0]
