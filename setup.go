@@ -39,7 +39,9 @@ func setup(c *caddy.Controller) error {
 				whitelistIPNets = append(whitelistIPNets, ipNet)
 			}
 		}
-		limitedHeader = rule.LimitByHeader
+		if len(rule.LimitByHeader) > 0 {
+			limitedHeader = rule.LimitByHeader
+		}
 	}
 
 	rateLimit := RateLimit{Rules: rules}
