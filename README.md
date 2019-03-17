@@ -30,12 +30,15 @@ For multiple resources:
 ```
 ratelimit methods rate burst unit {
     whitelist CIDR,CIDR
+    limit_by_header xxx
     status xxx,xxx
     resources
 }
 ```
 
 - `whitelist` is the keyword for whitelist your trusted ips (comma separately). [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) is the IP range you don't want to perform `rate limit`. `whitelist` is a general rule, it won't target for specific resource.
+- `limit_by_header` is the keyword for matching the [request header](https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields). Like `whitelist`, it's also a general rule.
+**Note:** normally you shouldn't apply this rule unless the default `limit by ip` is not what you want and you want to `limit by request header`(e.g. `Authorization`).
 - `status` is the keyword for matching the [response status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) (comma separately).
 If this rule is triggered, all subsequent requests from that client will be blocked regardless of which status code is returned or which resource is requested.
 **Note:** this won't block resources not defined in `ratelimit`'s config.
