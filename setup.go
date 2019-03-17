@@ -11,6 +11,7 @@ import (
 
 var (
 	whitelistIPNets []*net.IPNet
+	limitedHeader   string
 )
 
 func init() {
@@ -38,6 +39,7 @@ func setup(c *caddy.Controller) error {
 				whitelistIPNets = append(whitelistIPNets, ipNet)
 			}
 		}
+		limitedHeader = rule.LimitByHeader
 	}
 
 	rateLimit := RateLimit{Rules: rules}
@@ -102,11 +104,16 @@ func rateLimitParse(c *caddy.Controller) (rules []Rule, err error) {
 						}
 						rule.Whitelist = append(rule.Whitelist, v)
 					}
+				} else if "limit_by_header" == val {
+					if len(args[0]) == 0 {
+						return rules, c.Errf("invalid limit_by_header")
+					}
+					rule.LimitByHeader = args[0]
 				} else if "status" == val {
 					// TODO: check status code is valid
 					rule.Status = args[0]
 				} else {
-					return rules, c.Errf("expecting whitelist or status, got %s", val)
+					return rules, c.Errf("expecting whitelist, limit_by_header or status, got %s", val)
 				}
 			default:
 				return rules, c.ArgErr()
