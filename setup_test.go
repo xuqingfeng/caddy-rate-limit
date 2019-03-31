@@ -30,12 +30,12 @@ func TestRateLimitParse(t *testing.T) {
 	}{
 		{
 			`ratelimit get / 2 0 second`, false, []Rule{
-				{"get", 2, 0, "second", []string{}, "*", []string{"/"}},
+				{"get", 2, 0, "second", []string{}, "", "*", []string{"/"}},
 			},
 		},
 		{
 			`ratelimit post / 2 1 badUnit`, false, []Rule{
-				{"post", 2, 1, "badUnit", []string{}, "200", []string{"/"}},
+				{"post", 2, 1, "badUnit", []string{}, "", "200", []string{"/"}},
 			},
 		},
 		{
@@ -46,7 +46,7 @@ func TestRateLimitParse(t *testing.T) {
 		},
 		{
 			`ratelimit badMethods / 2 1 second`, false, []Rule{
-				{"badMethods", 2, 1, "second", []string{}, "403", []string{"/"}},
+				{"badMethods", 2, 1, "second", []string{}, "", "403", []string{"/"}},
 			},
 		},
 		{
@@ -56,12 +56,21 @@ func TestRateLimitParse(t *testing.T) {
                             /resource0
                             /resource1
                         }`, false, []Rule{
-				{"put,patch", 2, 2, "second", []string{"127.0.0.1/32"}, "403,405", []string{"/resource0", "/resource1"}},
+				{"put,patch", 2, 2, "second", []string{"127.0.0.1/32"}, "", "403,405", []string{"/resource0", "/resource1"}},
 			},
 		},
 		{
 			`ratelimit 2 3 minute {
 					whitelist asdf
+					status xyz
+					/resource0
+					/resource1
+				}`, true, []Rule{},
+		},
+		{
+			`ratelimit 2 3 minute {
+					whitelist asdf
+					limit_by_header xxx
 					status xyz
 					/resource0
 					/resource1

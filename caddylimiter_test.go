@@ -31,6 +31,9 @@ func TestAllowNAndRetryAfter(t *testing.T) {
 		{
 			[]string{"127.0.0.1", "", "*", "/"}, Rule{Methods: "", Status: "*", Rate: 0, Burst: 0}, 2, 0, false, true,
 		},
+		{
+			[]string{"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImNhZGR5LXJhdGUtbGltaXQiLCJpYXQiOjE1MTYyMzkwMjJ9.-i8APTDIVPfX4XjLQIEJH-GugwBoDizdUJjDgnOJpCI", "", "*", "/"}, Rule{Methods: "", Status: "*", Rate: 0, Burst: 0}, 2, 0, false, true,
+		},
 	}
 
 	for i, test := range tests {

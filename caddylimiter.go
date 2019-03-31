@@ -82,24 +82,24 @@ func (cl *CaddyLimiter) Reserve(keys []string) bool {
 	return r.OK()
 }
 
-// buildKeys combine client ip, methods, status code and resource
-func buildKeys(ipAddress, methods, status, res string) [][]string {
+// buildKeys combine client-ip / request-header, methods, status code and resource
+func buildKeys(limitedKey, methods, status, res string) [][]string {
 
 	sliceKeys := make([][]string, 0)
 
-	if len(ipAddress) != 0 {
-		sliceKeys = append(sliceKeys, []string{ipAddress, methods, status, res})
+	if len(limitedKey) != 0 {
+		sliceKeys = append(sliceKeys, []string{limitedKey, methods, status, res})
 	}
 
 	return sliceKeys
 }
 
-// buildKeysOnlyWithIP only use client ip as keys
-func buildKeysOnlyWithIP(ipAddress string) [][]string {
+// buildKeysOnlyWithKey will use client ip or request header as key
+func buildKeysOnlyWithLimitedKey(limitedKey string) [][]string {
 	sliceKeys := make([][]string, 0)
 
-	if len(ipAddress) != 0 {
-		sliceKeys = append(sliceKeys, []string{ipAddress})
+	if len(limitedKey) != 0 {
+		sliceKeys = append(sliceKeys, []string{limitedKey})
 	}
 
 	return sliceKeys

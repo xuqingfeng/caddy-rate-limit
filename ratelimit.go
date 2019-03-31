@@ -17,13 +17,14 @@ type RateLimit struct {
 
 // Rule is a configuration for ratelimit
 type Rule struct {
-	Methods   string
-	Rate      int64
-	Burst     int
-	Unit      string
-	Whitelist []string
-	Status    string
-	Resources []string
+	Methods       string
+	Rate          int64
+	Burst         int
+	Unit          string
+	Whitelist     []string
+	LimitByHeader string
+	Status        string
+	Resources     []string
 }
 
 const (
@@ -43,10 +44,17 @@ func init() {
 func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextResponseStatus int, err error) {
 
 	retryAfter := time.Duration(0)
+	limitedKey := ""
 	// get request ip address
 	ipAddress, err := GetRemoteIP(r)
 	if err != nil {
 		return http.StatusInternalServerError, err
+	}
+
+	if len(limitedHeader) == 0 {
+		limitedKey = ipAddress
+	} else {
+		limitedKey = r.Header.Get(limitedHeader)
 	}
 
 	for _, rule := range rl.Rules {
@@ -76,8 +84,8 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 
 				note: this won't block resources outside of the plugin's config
 			*/
-			sliceKeysOnlyWithIP := buildKeysOnlyWithIP(ipAddress)
-			for _, keys := range sliceKeysOnlyWithIP {
+			sliceKeysOnlyWithKey := buildKeysOnlyWithLimitedKey(limitedKey)
+			for _, keys := range sliceKeysOnlyWithKey {
 				keysJoined := strings.Join(keys, "|")
 				if _, found := caddyLimiter.Keys[keysJoined]; found {
 					ret := caddyLimiter.Allow(keys, rule)
@@ -91,7 +99,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 
 			// check limit
 			if len(rule.Status) == 0 || rule.Status == "*" {
-				sliceKeys := buildKeys(ipAddress, rule.Methods, rule.Status, res)
+				sliceKeys := buildKeys(limitedKey, rule.Methods, rule.Status, res)
 				for _, keys := range sliceKeys {
 					ret := caddyLimiter.Allow(keys, rule)
 					if !ret {
@@ -135,7 +143,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 				continue
 			}
 
-			sliceKeys := buildKeysOnlyWithIP(ipAddress)
+			sliceKeys := buildKeysOnlyWithLimitedKey(limitedKey)
 			for _, keys := range sliceKeys {
 				// consume one token if status code matches
 				caddyLimiter.Allow(keys, rule)
