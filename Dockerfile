@@ -1,19 +1,27 @@
-FROM golang:1.11-alpine
+FROM golang:1.12.7-alpine as builder
 
-RUN apk add --update-cache --no-cache git && \
-    go get -v github.com/caddyserver/caddy && \
-    go get -v github.com/caddyserver/builds && \
-    go get -v golang.org/x/time/rate
+ARG CADDY_VERSION="1.0.1"
 
-WORKDIR /go/src/github.com/xuqingfeng/caddy-rate-limit
+ENV GO111MODULE=on
 
-COPY . .
+RUN apk add --no-cache git
 
-RUN ./insert-plugin.sh && \
-    cd /go/src/github.com/caddyserver/caddy/caddy && \
-    go run build.go && \
-    cp caddy /go/src/github.com/xuqingfeng/caddy-rate-limit/caddy
+COPY caddy.go /go/build/caddy.go
+COPY go.mod /go/build/go.mod
+
+RUN cd /go/build && \
+    go build
+
+FROM alpine:3.10
+
+RUN apk add --no-cache --no-progress curl tini ca-certificates
+
+COPY --from=builder /go/build/caddy /usr/bin/caddy
+
+COPY Caddyfile /etc/caddy/Caddyfile
+COPY index.md /www/index.md
 
 EXPOSE 2016
 
-CMD ["./caddy"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["caddy"]
