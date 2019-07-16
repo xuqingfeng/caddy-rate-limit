@@ -4,8 +4,8 @@ ENV GO111MODULE=on
 
 RUN apk add --no-cache git
 
-COPY caddy.go /go/build/caddy.go
-COPY go.mod /go/build/go.mod
+COPY build/caddy.go /go/build/caddy.go
+COPY bulid/go.mod /go/build/go.mod
 
 RUN cd /go/build && \
     go build
