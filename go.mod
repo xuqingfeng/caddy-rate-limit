@@ -1,4 +1,4 @@
-module caddy
+module github.com/xuqingfeng/caddy-rate-limit
 
 go 1.12
 
