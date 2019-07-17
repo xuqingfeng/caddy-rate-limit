@@ -1,9 +1,9 @@
 package main
 
 import (
-        "github.com/caddyserver/caddy/caddy/caddymain"
+	"github.com/caddyserver/caddy/caddy/caddymain"
 
-        _ "github.com/xuqingfeng/caddy-rate-limit"
+	_ "github.com/xuqingfeng/caddy-rate-limit"
 )
 
 func main() {
