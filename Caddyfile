@@ -1,6 +1,6 @@
 :2016 {
 
-    root {$GOPATH}/src/github.com/xuqingfeng/caddy-rate-limit/test_site
+    root /test_site
 
     browse /
     ext .html

@@ -74,7 +74,7 @@ ratelimit get,post 2 2 minute {
 ### Docker
 
 ```bash
-docker run -d -p 2016:2016 -v `pwd`/Caddyfile:/go/src/github.com/xuqingfeng/caddy-rate-limit/Caddyfile --name ratelimit xuqingfeng/caddy-rate-limit
+docker run -d -p 2016:2016 -v `pwd`/Caddyfile:/Caddyfile -v `pwd`/test_site:/test_site --name ratelimit xuqingfeng/caddy-rate-limit
 ```
 
 ---
