@@ -1,5 +1,5 @@
 deps:
-	go get -v -d -u ./...
+	go get -v -d ./...
 
 build: fmt
 	cd $$GOPATH/src/github.com/caddyserver/caddy/caddy && go run build.go && cp caddy $$GOPATH/src/github.com/xuqingfeng/caddy-rate-limit/
