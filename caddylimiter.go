@@ -59,6 +59,19 @@ func (cl *CaddyLimiter) AllowN(keys []string, rule Rule, n int) bool {
 	return curLimiter.AllowN(time.Now(), n)
 }
 
+// CheckKeyExists is used to check if a key exists in map
+func (cl *CaddyLimiter) CheckKeyExists(k string) bool {
+
+	cl.Lock()
+	defer cl.Unlock()
+
+	if _, found := cl.Keys[k]; found {
+		return true
+	}
+
+	return false
+}
+
 // RetryAfter return a helper message for client
 func (cl *CaddyLimiter) RetryAfter(keys []string) time.Duration {
 
