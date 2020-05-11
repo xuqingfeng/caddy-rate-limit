@@ -1,5 +1,5 @@
 deps:
-	go get -v -d ./...
+	go mod download
 
 build: fmt
 	cd $$GOPATH/src/github.com/caddyserver/caddy/caddy && go run build.go && cp caddy $$GOPATH/src/github.com/xuqingfeng/caddy-rate-limit/
@@ -11,10 +11,10 @@ fmt:
 	go fmt ./...
 
 test: fmt
-	go test -v $$(go list ./... | grep -v /vendor/)
+	go test -v
 
 race-test: fmt
-	go test -v -race $$(go list ./... | grep -v /vendor/)
+	go test -v -race
 
 benchmark:
 	go test -run=xxx -bench=.

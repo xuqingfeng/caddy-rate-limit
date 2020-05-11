@@ -9,7 +9,5 @@ matrix:
   fast_finish: true
 os:
   - linux
-install:
-  - make deps
 script:
   - make race-test
