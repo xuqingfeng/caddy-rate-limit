@@ -1,6 +1,8 @@
-.DS_Store
-*.test
-*.pprof
-*.svg
+.*
+!.gitignore
+!.github
+!.dockerignore
+!.travis.yml
 
+benchmark
 caddy
