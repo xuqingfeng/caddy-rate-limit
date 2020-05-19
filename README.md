@@ -3,7 +3,7 @@
 
 **Only support Caddy v1 currently**
 
-[![Travis CI](https://img.shields.io/travis/xuqingfeng/caddy-rate-limit/master.svg?style=flat-square)](https://travis-ci.org/xuqingfeng/caddy-rate-limit)
+[![Travis CI](https://img.shields.io/travis/xuqingfeng/caddy-rate-limit/master.svg?style=flat-square&cacheSeconds=3600)](https://travis-ci.org/xuqingfeng/caddy-rate-limit)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://pkg.go.dev/github.com/xuqingfeng/caddy-rate-limit?tab=doc)
 
 ### Syntax
