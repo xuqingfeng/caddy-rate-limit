@@ -1,7 +1,7 @@
 ## caddy-rate-limit
 >a `rate limit` plugin for [caddy](https://caddyserver.com/)
 
-**Only support Caddy v1 currently**
+**Only support Caddy v1, try on https://github.com/mholt/caddy-ratelimit if you are using v2**
 
 [![Travis CI](https://img.shields.io/travis/xuqingfeng/caddy-rate-limit/master.svg?style=flat-square&cacheSeconds=3600)](https://travis-ci.org/xuqingfeng/caddy-rate-limit)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://pkg.go.dev/github.com/xuqingfeng/caddy-rate-limit?tab=doc)
