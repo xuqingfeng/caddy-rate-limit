@@ -57,6 +57,9 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 		limitedKey = r.Header.Get(limitedHeader)
 	}
 
+	// pathBasedLimitApplied: only apply one path-based limit per request so that
+	// one request consumes at most one token and burst behaves correctly
+pathBasedLimitApplied:
 	for _, rule := range rl.Rules {
 		for _, res := range rule.Resources {
 
@@ -97,7 +100,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 				}
 			}
 
-			// check limit
+			// check limit (only first matching rule/resource — one token per request so burst works)
 			if len(rule.Status) == 0 || rule.Status == "*" {
 				sliceKeys := buildKeys(limitedKey, rule.Methods, rule.Status, res)
 				for _, keys := range sliceKeys {
@@ -107,6 +110,7 @@ func (rl RateLimit) ServeHTTP(w http.ResponseWriter, r *http.Request) (nextRespo
 						w.Header().Add("X-RateLimit-RetryAfter", retryAfter.String())
 						return http.StatusTooManyRequests, err
 					}
+					break pathBasedLimitApplied
 				}
 			}
 		}
